@@ -31,3 +31,9 @@ lazy val scalaSmtLib = {
   val githubLink = s"git://github.com/regb/scala-smtlib.git#$commit"
   RootProject(uri(githubLink))
 }
+
+lazy val regolic = {
+  val commit = "910cf9cd70ac1e79f5a1913f8a8c7a8dcef81127"
+  val githubLink = s"git://github.com/regb/scabolic.git#$commit"
+  RootProject(uri(githubLink))
+}

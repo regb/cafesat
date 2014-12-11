@@ -1,4 +1,4 @@
-package regolic.sat
+package cafesat.sat
 
 //equality is only defined by references on Inference, no deep equality
 abstract class Inference {

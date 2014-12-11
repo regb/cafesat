@@ -1,7 +1,5 @@
-package regolic.sat
-
-import regolic.Settings
-import regolic.StopWatch
+package cafesat
+package sat
 
 object Solver {
   /* The results, unknown means timeout */

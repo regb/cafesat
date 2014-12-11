@@ -1,4 +1,4 @@
-package regolic.sat
+package cafesat.sat
 
 import scala.reflect.ClassTag
 

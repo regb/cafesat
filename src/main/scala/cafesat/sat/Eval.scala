@@ -1,4 +1,5 @@
-package regolic.sat
+package cafesat
+package sat
 
 /* Simple evaluator for cnf formulas */
 object Eval {

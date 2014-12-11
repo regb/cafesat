@@ -1,4 +1,5 @@
-package regolic.sat
+package cafesat
+package sat
 
 import Solver.Results._
 import Solver.Clause
@@ -34,7 +35,7 @@ class IncrementalSuite extends FunSuite {
 
   test("large dimacs example") {
     val is = getClass.getResourceAsStream("/uuf100-013.cnf")
-    val (satInstance, nbVars) = regolic.parsers.Dimacs.cnf(is)
+    val (satInstance, nbVars) = parsers.Dimacs.cnf(is)
     val s = new Solver(nbVars)
 
     var i = 0

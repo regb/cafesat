@@ -1,4 +1,4 @@
-package regolic.sat
+package cafesat.sat
 
 // Invariant: different literal types are stored in different id intervals
 

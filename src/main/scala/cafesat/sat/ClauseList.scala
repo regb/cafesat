@@ -1,7 +1,6 @@
-package regolic.sat
+package cafesat.sat
 
-import regolic.sat.Solver._
-
+import Solver._
 
 /*
  * Linked list which provides efficient prepend as well as an iterator

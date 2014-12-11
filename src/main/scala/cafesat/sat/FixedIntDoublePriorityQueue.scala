@@ -1,4 +1,4 @@
-package regolic.sat
+package cafesat.sat
 
 /*
  * Priority queue of integer values that are sorted according

@@ -1,4 +1,4 @@
-package regolic.sat
+package cafesat.sat
 
 /*
  * This implements a stack of int of finite size using an array.
