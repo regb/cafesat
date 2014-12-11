@@ -1,6 +1,8 @@
 package cafesat
 package sat
 
+import common.FixedIntStack
+
 object Solver {
   /* The results, unknown means timeout */
   object Results {

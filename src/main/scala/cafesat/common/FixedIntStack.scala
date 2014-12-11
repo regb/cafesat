@@ -1,8 +1,10 @@
-package cafesat.sat
+package cafesat.common
 
 /*
- * This implements a stack of int of finite size using an array.
- * This is intended to be used for the trail in the SAT solver.
+ * This implements a stack of Int of fixed size using an array.
+ *
+ * This is an efficient data structure for representing the trail 
+ * in the SAT solver. 
  */
 class FixedIntStack(maxSize: Int) {
   val stack: Array[Int] = new Array(maxSize)
