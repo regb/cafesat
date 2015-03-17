@@ -19,7 +19,11 @@ A jar file that can be integrated to another project can be generated with:
 
     sbt package
 
-The jar file can also be run using the JVM. You can also generate a runner script:
+If you wish to run CafeSat as a standalone tool, the jar file can be executed
+using the JVM.  You need to invoke the `cafesat.Main` class.
+
+The prefered way to use CafeSat as a standalone tool is to generate a runner
+script:
 
     sbt cafesat
 
@@ -27,11 +31,14 @@ Then you can run CafeSat as follows:
 
     ./target/cafesat [ OPTIONS ] [ INPUT ]
 
+<!--
 If no INPUT is specified, then CafeSat will expect SMT-LIB commands on the standard input, which
 is the standard behaviour of the SMT-LIB specifications. If an input is specified, then it will
 be parsed as an SMT-LIB script, and fully interpreted. Options can be used to modify this behaviour,
-for example the --dimacs option will interpret the INPUT file in Dimacs CNF format.
+for example the `- -dimacs` option will interpret the INPUT file in Dimacs CNF format.
+-->
 
+<!--
 Examples
 --------
 
@@ -51,8 +58,9 @@ in which CafeSat will open the file before feeding it to the SMT solver.
 
 To solve Dimacs SAT problems, use:
 
-    ./target/cafesat --dimacs input.cnf
+    ./target/cafesat - -dimacs input.cnf
 
+-->
 
 Scala API
 ---------
@@ -63,8 +71,7 @@ The best way to learn the API is to look at some projects relying on CafeSat:
 
   * [CafeDoku](https://github.com/regb/cafedoku)
 
-Be sure to check which version of the library is used (in terms of commit) on
-each project.
+Be sure to check which version of the library is used on each project.
 
 Literature
 ----------
