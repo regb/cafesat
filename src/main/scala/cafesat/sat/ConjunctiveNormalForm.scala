@@ -1,5 +1,6 @@
-//package regolic.sat
-//
+//package cafesat
+//package sat
+
 //import regolic.asts.core.Trees._
 //import regolic.asts.core.Manip._
 //import regolic.asts.fol.Trees._
