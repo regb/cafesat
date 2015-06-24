@@ -1,4 +1,4 @@
-package cafesat.sat
+package cafesat.common
 
 import org.scalatest.FunSuite
 

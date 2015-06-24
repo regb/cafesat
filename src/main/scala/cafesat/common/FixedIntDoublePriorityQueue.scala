@@ -1,8 +1,8 @@
-package cafesat.sat
+package cafesat.common
 
 /*
- * Priority queue of integer values that are sorted according
- * to a double value.
+ * Priority queue of Int values that are sorted according
+ * to a Double value.
  * Scores are initialized to 0, while the elements are initialized
  * from 0 to length-1
  *
