@@ -12,7 +12,8 @@ package cafesat.common
   */
 class FixedIntStack(maxSize: Int) {
   require(maxSize >= 0)
-  val stack: Array[Int] = new Array(maxSize)
+
+  private val stack: Array[Int] = new Array(maxSize)
   private var topIndex: Int = -1
 
   def push(el: Int) {
