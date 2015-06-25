@@ -19,7 +19,7 @@ lazy val root = (project in file(".")).
   settings(
     name := "CafeSat",
     version := "0.01",
-    scalaVersion := "2.11.4",
+    scalaVersion := "2.11.7",
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
 
     libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.1" % Test
@@ -29,11 +29,5 @@ lazy val root = (project in file(".")).
 lazy val scalaSmtLib = {
   val commit = "004fab30fc294677a14429fad2cd95ab4d366416"
   val githubLink = s"git://github.com/regb/scala-smtlib.git#$commit"
-  RootProject(uri(githubLink))
-}
-
-lazy val regolic = {
-  val commit = "910cf9cd70ac1e79f5a1913f8a8c7a8dcef81127"
-  val githubLink = s"git://github.com/regb/scabolic.git#$commit"
   RootProject(uri(githubLink))
 }
