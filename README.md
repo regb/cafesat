@@ -67,7 +67,10 @@ Scala API
 
 CafeSat exports an API usable from Scala programs. The API is not stable
 yet and is expected to change frequently. It will NOT be backward compatible.
-The best way to learn the API is to look at some projects relying on CafeSat:
+
+A minimal Scala doc is available [here](http://regb.github.io/cafesat/apidocs/#cafesat.api.package).
+
+The best way to learn the API is probably to look at some projects relying on CafeSat:
 
   * [CafeDoku](https://github.com/regb/cafedoku)
 
