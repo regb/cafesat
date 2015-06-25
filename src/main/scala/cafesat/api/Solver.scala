@@ -30,10 +30,16 @@ trait Solver {
 }
 
 
+/** Contains helper functions to query CafeSat solvers on formulas. */
 object Solver {
 
   type Model = Map[PropVar, Boolean]
 
+  /** Checks the satisfiability of a formula.
+    *
+    * @param formula the formula to check for satisfiability
+    * @return `Some(model)` if the formula is satisfiable, and None if unsatisfiable
+    */
   def solveForSatisfiability(formula: Formula): Option[Model] = {
     val f = formula.formula
     val simpleF = simplify(f)
