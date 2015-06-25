@@ -79,7 +79,7 @@ Be sure to check which version of the library is used on each project.
 Literature
 ----------
 
-CafeSat has been first presentend in the [Scala'13 workshop](http://dx.doi.org/10.1145/2489837.2489839).
+CafeSat has been first presented in the [Scala'13 workshop](http://dx.doi.org/10.1145/2489837.2489839).
 However, note that the content of the paper is getting out of date.
 
 Licence
