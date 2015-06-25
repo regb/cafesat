@@ -26,13 +26,21 @@ object Formulas {
     private[api] val formula: CoreFormula
   ) {
 
+    /** Returns the conjunction of `this` and `that`. */
     def &&(that: Formula): Formula = new Formula(And(this.formula, that.formula))
+
+    /** Returns the disjunction of `this` and `that`. */
     def ||(that: Formula): Formula = new Formula(Or(this.formula, that.formula))
+
+    /** Returns the negation of `this`. */
     def unary_!(): Formula = new Formula(Not(this.formula))
 
+    /** Returns a formula representing the equivalence of `this` and `that`. */
     def iff(that: Formula): Formula = new Formula(Or(
                                                    And(this.formula, that.formula), 
                                                    And(Not(this.formula), Not(that.formula))))
+
+    /** Returns a formula representing the xor of `this` and `that`. */
     def xor(that: Formula): Formula = new Formula(Or(
                                                    And(this.formula, Not(that.formula)), 
                                                    And(Not(this.formula), that.formula)))

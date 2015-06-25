@@ -1,12 +1,17 @@
 package cafesat.common
 
-/*
- * This implements a stack of Int of fixed size using an array.
- *
- * This is an efficient data structure for representing the trail 
- * in the SAT solver. 
- */
+/** Implements a stack of Int of fixed maximum size.
+  *
+  * This is an efficient data structure for representing the trail
+  * in a SAT solver. Though it can be used to represent a stack of
+  * Int with a fixed maximum size.
+  *
+  * @constructor Initializes an empty stack with space to grow up to maxSize
+  * @param maxSize the maximum size the stack can grow. Should be positive
+  * @throws IllegalArgumentException if maxSize < 0
+  */
 class FixedIntStack(maxSize: Int) {
+  require(maxSize >= 0)
   val stack: Array[Int] = new Array(maxSize)
   private var topIndex: Int = -1
 
@@ -31,17 +36,27 @@ class FixedIntStack(maxSize: Int) {
     false
   }
 
-  /*
-   * get provides checked access to element in the stack
-   */
+  /** Provides checked access to an element in the stack.
+    *
+    * Will throw an exception if the element is outside the actual
+    * content of the stack.
+    *
+    * @param i the index of the element in the stack, starting at 0
+    */
   def get(i: Int): Int = {
     assert(i >= 0 && i <= topIndex)
     stack(i)
   }
 
-  /* 
-   * unchecked access
-   */
+  /** Provides unchecked access to an element in the stack.
+    *
+    * The access is unchecked in the sense that we do not make sure the
+    * element is not outside the current range of the stack, and could
+    * return a random value if it is bigger than this.size but smaller than
+    * maxSize.
+    * 
+    * @param i the index of the element in the stack, starting at 0
+    */
   def apply(i: Int): Int = stack(i)
 
   def size: Int = topIndex + 1

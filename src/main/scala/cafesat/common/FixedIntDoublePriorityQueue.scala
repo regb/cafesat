@@ -1,16 +1,16 @@
 package cafesat.common
 
-/*
- * Priority queue of Int values that are sorted according
- * to a Double value.
- * Scores are initialized to 0, while the elements are initialized
- * from 0 to length-1
- *
- * Elements are fixed, taking value between 0 and maxSize-1
- * When an element is removed, we remember its score, it is still
- * possible to augment its score, and when the element is added back, it
- * takes a position according to its current score.
- */
+/** Represents a queue of Int values sorted according to a score value.
+  *
+  * Scores are Double value and initialized to 0, while the elements are initialized
+  * from 0 to length-1.
+  *
+  * Elements are fixed, taking value from 0 to maxSize-1.
+  *
+  * When an element is removed, the queue remembers its score, it is still
+  * possible to augment its score, and when the element is added back, it
+  * takes a position according to its current score.
+  */
 class FixedIntDoublePriorityQueue(val maxSize: Int) {
 
   private var _size = maxSize
@@ -99,11 +99,13 @@ class FixedIntDoublePriorityQueue(val maxSize: Int) {
     index(element) = i
   }
 
-  /**
-   * Increment the score
-   * @require offset is positive
-   * @return the new score of the element
-   */
+  /** Increments the score of an element in the queue.
+    *
+    * @param el the element whose score should be incremented
+    * @param offset the increment value, should be positive
+    * @return the new score of the element
+    * @throws IllegalArgumentException if offset < 0
+    */
   def incScore(el: Int, offset: Double): Double = {
     require(offset >= 0)
     val pos = index(el)
@@ -115,11 +117,13 @@ class FixedIntDoublePriorityQueue(val maxSize: Int) {
     newScore
   }
 
-  /**
-   * Rescale every score by the factor
-   * This does not impact the ordering
-   */
-  def rescaleScores(factor: Double) {
+  /** Rescales every score by the factor
+    *
+    * This does not impact the ordering of the queue.
+    *
+    * @param factor the factor to multiply each score with
+    */
+  def rescaleScores(factor: Double): Unit = {
     var i = 0
     while(i < maxSize) {
       heapScores(i) *= factor
@@ -195,7 +199,7 @@ class FixedIntDoublePriorityQueue(val maxSize: Int) {
 
 
   /*
-   * verify that the invariant is true.
+   * Verifies that the invariant is true.
    * Meant to be called internally by the testing framework
    * Not efficient!
    */
@@ -211,8 +215,7 @@ class FixedIntDoublePriorityQueue(val maxSize: Int) {
     valid
   }
 
-  /**
-   * verify that the invariant is true.
+  /*
    * Meant to be called internally for debugging purpose
    * Not efficient!
    */
