@@ -1,0 +1,223 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>api - cafesat.api</title>
+          <meta name="description" content="api - cafesat.api" />
+          <meta name="keywords" content="api cafesat.api" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'cafesat.api.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../lib/package_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="cafesat">cafesat</a></p>
+        <h1>api</h1> <span class="permalink">
+      <a href="../../index.html#cafesat.api.package" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">api</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Provides a simple abstraction on top of CafeSat functionalities.</p><p>This is the expected entry point to use CafeSat as a library to an
+external project. It provides a simple and high-level abstraction over
+formulas with an opaque type <a href="Formulas$$Formula.html" class="extype" name="cafesat.api.Formulas.Formula">cafesat.api.Formulas.Formula</a>, along
+with a simple language to build formulas and query their satisfiability.</p><p><a href="FormulaBuilder$.html" class="extype" name="cafesat.api.FormulaBuilder">FormulaBuilder</a> provides the main building blocks to build formulas.
+You typically start a formula with a <a href="FormulaBuilder$.html#propVar(prefix:String):cafesat.api.Formulas.PropVar" class="extmbr" name="cafesat.api.FormulaBuilder#propVar">FormulaBuilder.propVar</a> to obtain
+a propositional variable and then you can use boolean operators to build
+a more complex formula out of it.</p><p><a href="Solver.html" class="extype" name="cafesat.api.Solver">cafesat.api.Solver</a> provides functions to query a solver over formulas.</p><p>Here is a short example where CafeSat is used to check the satisfiability of
+a simple formula:</p><pre><span class="kw">import</span> FormulaBuilder._
+
+<span class="kw">val</span> a = propVar(<span class="lit">"a"</span>)
+<span class="kw">val</span> b = propVar(<span class="lit">"b"</span>)
+<span class="kw">val</span> f = a &amp;&amp; (!a || b)
+Solver.solveForSatisfiability(f) <span class="kw">match</span> {
+  <span class="kw">case</span> <span class="std">None</span> <span class="kw">=&gt;</span> ???
+  <span class="kw">case</span> <span class="std">Some</span>(model) <span class="kw">=&gt;</span> ???
+}</pre></div><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="cafesat.api"><span>api</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="cafesat.api.Solver" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="SolverextendsAnyRef"></a>
+      <a id="Solver:Solver"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Solver.html"><span class="name">Solver</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#cafesat.api.package@SolverextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="cafesat.api.FormulaBuilder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="FormulaBuilder"></a>
+      <a id="FormulaBuilder:FormulaBuilder"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="FormulaBuilder$.html"><span class="name">FormulaBuilder</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#cafesat.api.package@FormulaBuilder" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Contains helper functions for building <a href="Formulas$$Formula.html" class="extype" name="cafesat.api.Formulas.Formula">Formulas.Formula</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Contains helper functions for building <a href="Formulas$$Formula.html" class="extype" name="cafesat.api.Formulas.Formula">Formulas.Formula</a>.</p><p>The basic building blocks of formulas are true/false literals and propositional
+variables. You get a propositional variable with <a href="FormulaBuilder$.html#propVar(prefix:String):cafesat.api.Formulas.PropVar" class="extmbr" name="cafesat.api.FormulaBuilder#propVar">FormulaBuilder.propVar</a> and
+<a href="FormulaBuilder$.html#bool2formula(b:Boolean):cafesat.api.Formulas.Formula" class="extmbr" name="cafesat.api.FormulaBuilder#bool2formula">FormulaBuilder.bool2formula</a> provides an implicit conversion from <code>Boolean</code>
+to <a href="Formulas$$True$.html" class="extype" name="cafesat.api.Formulas.True">Formulas.True</a>/<a href="Formulas$$False$.html" class="extype" name="cafesat.api.Formulas.False">Formulas.False</a>.</p><p>Once you have a <a href="Formulas$$Formula.html" class="extype" name="cafesat.api.Formulas.Formula">Formulas.Formula</a> instance, you can combine it using its method
+matching regular boolean operators. You can also use n-ary combinators
+<a href="FormulaBuilder$.html#or(fs:cafesat.api.Formulas.Formula*):cafesat.api.Formulas.Formula" class="extmbr" name="cafesat.api.FormulaBuilder#or">FormulaBuilder.or</a> and <a href="FormulaBuilder$.html#and(fs:cafesat.api.Formulas.Formula*):cafesat.api.Formulas.Formula" class="extmbr" name="cafesat.api.FormulaBuilder#and">FormulaBuilder.and</a>.</p><pre><span class="kw">import</span> FormulaBuilder._
+
+<span class="kw">val</span> a = propVar(<span class="lit">"a"</span>)
+<span class="kw">val</span> b = propVar(<span class="lit">"b"</span>)
+and(a, (!a || b), (!b || <span class="kw">false</span>))</pre></div></div>
+    </li><li name="cafesat.api.Formulas" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Formulas"></a>
+      <a id="Formulas:Formulas"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Formulas$.html"><span class="name">Formulas</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#cafesat.api.package@Formulas" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Contains class definitions for formulas.</p>
+    </li><li name="cafesat.api.Solver" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Solver"></a>
+      <a id="Solver:Solver"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Solver$.html"><span class="name">Solver</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#cafesat.api.package@Solver" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Contains helper functions to query CafeSat solvers on formulas.</p>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
