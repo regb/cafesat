@@ -33,26 +33,4 @@ class IncrementalSuite extends FunSuite {
     assert(result.isInstanceOf[Satisfiable])
   }
 
-  test("large dimacs example") {
-    val is = getClass.getResourceAsStream("/uuf100-013.cnf")
-    val (satInstance, nbVars) = parsers.Dimacs.cnf(is)
-    val s = new Solver(nbVars)
-
-    var i = 0
-    var sResult: Result = Unknown
-    for(c <- satInstance) {
-      s.addClause(c)
-      sResult = s.solve()
-      i += 1
-
-      // reference solver (all clauses added immediately)
-      val r = new Solver(nbVars)
-      satInstance.take(i).foreach(r.addClause(_))
-      val rResult = r.solve()
-      assert(sResult.getClass === rResult.getClass)
-    }
-
-    assert(sResult === Unsatisfiable)
-  }
-
 }

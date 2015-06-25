@@ -71,8 +71,8 @@ object Main {
   import Solver.Results._
 
   def satSolver(f: File, withSmt: Boolean = false)(implicit context: Context) = {
-    val is = new java.io.FileInputStream(f)
-    val (satInstance, nbVars) = parsers.Dimacs.cnf(is)
+    val input = new java.io.FileReader(f)
+    val (satInstance, nbVars) = parsers.Dimacs.cnf(input)
     val s = new Solver(nbVars)
     satInstance.foreach(s.addClause(_))
     val res = s.solve()

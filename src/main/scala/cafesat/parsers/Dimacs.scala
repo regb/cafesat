@@ -1,8 +1,8 @@
 package cafesat
 package parsers
 
-import scala.io.Source
-import java.io.InputStream
+import java.io.Reader
+import java.io.BufferedReader
 
 import sat.Literal
 
@@ -29,14 +29,17 @@ import sat.Literal
 
 object Dimacs {
 
-  def cnf(input: InputStream): (List[Set[Literal]], Int) = {
+  def cnf(input: Reader): (List[Set[Literal]], Int) = {
 
     var clauses: List[Set[Literal]] = Nil
     var nbClauses: Option[Int] = None
     var currentClause: List[Int] = Nil
     var nbVariables = 0
 
-    for(line <- Source.fromInputStream(input).getLines()) {
+    val bufferInput = new BufferedReader(input)
+    val lines = Stream.continually(bufferInput.readLine()).takeWhile(_ != null)
+
+    for(line <- lines) {
       val length = line.size
       if(length > 0 && line(0) != 'c' && line(0) != '%') {
         if(line.startsWith("p cnf")) {
