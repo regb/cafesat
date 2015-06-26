@@ -72,7 +72,7 @@ A minimal Scala doc is available [here](http://regb.github.io/cafesat/apidocs/#c
 
 The best way to learn the API is probably to look at some projects relying on CafeSat:
 
-  * [CafeDoku](https://github.com/regb/cafedoku)
+  * [Cafedoku](https://github.com/regb/cafedoku)
 
 Be sure to check which version of the library is used on each project.
 
