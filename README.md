@@ -1,4 +1,4 @@
-CAFESAT
+CafeSat
 =======
 
 <p align="center">
@@ -7,8 +7,8 @@ CAFESAT
 
 This is the official repository for the CafeSat source code. CafeSat is a
 SAT/SMT solver written entirely in Scala. The aim of CafeSat is to provide an
-efficient command-line tool to solve SMT problems, as well as a native library
-for Scala programs.
+efficient command-line tool to solve SMT problems, as well as a library
+for Scala programs that need the capabilities of SAT/SMT solvers.
 
 Setup
 -----
@@ -38,10 +38,10 @@ be parsed as an SMT-LIB script, and fully interpreted. Options can be used to mo
 for example the `- -dimacs` option will interpret the INPUT file in Dimacs CNF format.
 -->
 
-<!--
 Examples
 --------
 
+<!--
 To start an interactive session in the REPL with SMT-LIB:
 
     ./target/cafesat
@@ -55,12 +55,11 @@ which simply transparently redirect stdin to the content of the file. Or use:
     ./target/cafesat input.smt2
 
 in which CafeSat will open the file before feeding it to the SMT solver.
-
-To solve Dimacs SAT problems, use:
-
-    ./target/cafesat - -dimacs input.cnf
-
 -->
+
+To solve SAT instances in Dimacs format, use:
+
+    ./target/cafesat --dimacs input.cnf
 
 Scala API
 ---------
@@ -80,7 +79,7 @@ Literature
 ----------
 
 CafeSat has been first presented in the [Scala'13 workshop](http://dx.doi.org/10.1145/2489837.2489839).
-However, note that the content of the paper is getting out of date.
+However, note that the content of the paper is starting to get out of date.
 
 Licence
 -------
