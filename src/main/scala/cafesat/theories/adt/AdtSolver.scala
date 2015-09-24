@@ -15,7 +15,8 @@ import scala.util.control.Breaks._
  *  are headed by comments of form "// [*Rule*]".
  */
 
-package object types {
+object Types {
+
   type Index      = Int
   type CtorRef    = Int
   type SortRef    = Int
@@ -31,7 +32,7 @@ package object types {
   }
 }
 
-import types._
+import Types._
 
 case class Instance(sig: Signature,
                     declaredTypes: Typing,
@@ -44,6 +45,7 @@ case class Instance(sig: Signature,
       case (seq, Tester(_, _, t)) => t +: seq
     }
 }
+
 // Signature =^ seq of sorts, sort =^ seq of ctors, ctor =^ seq of arg. sorts
 case class Signature(sorts: Seq[Seq[Seq[SortRef]]], designatedTerms: Seq[Seq[Seq[Term]]]) {
   val sortRefs: Seq[SortRef] = (0 until sorts.size).toSeq
