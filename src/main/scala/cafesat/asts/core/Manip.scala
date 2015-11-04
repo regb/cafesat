@@ -178,6 +178,9 @@ object Manip {
   def count(t: Term, pt: (Term) => Boolean): Int = count(t, (_: Formula) => false, pt)
   def count(f: Formula, pf: (Formula) => Boolean): Int = count(f, pf, (_: Term) => false)
 
+  def size(t: Term): Int = count(t, (f: Formula) => true, (t: Term) => true)
+  def size(f: Formula): Int = count(f, (f: Formula) => true, (t: Term) => true)
+
   def vars(t: Term): Set[Variable] = foldPostorder(t, Set[Variable]())((a, f) => a, (a, t) => t match {
       case v@Variable(_, _) => a + v
       case _ => a

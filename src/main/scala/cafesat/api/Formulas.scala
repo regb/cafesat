@@ -45,6 +45,13 @@ object Formulas {
                                                    And(this.formula, Not(that.formula)), 
                                                    And(Not(this.formula), that.formula)))
 
+    /** Returns the number of nodes in the Formula
+      *
+      * A variable counts as one node, and any conjunction, disjunction,
+      * and negation of a node counts as an additional node.
+      */
+    def size = asts.core.Manip.size(this.formula)
+
     override def equals(other: Any): Boolean = other match {
       case (that: Formula) => this.formula == that.formula
       case _ => false
