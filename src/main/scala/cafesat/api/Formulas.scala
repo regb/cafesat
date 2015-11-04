@@ -58,6 +58,8 @@ object Formulas {
     }
 
     override def hashCode: Int = this.formula.hashCode
+
+    override def toString: String = asts.fol.PrettyPrinter(this.formula)
   }
 
 
