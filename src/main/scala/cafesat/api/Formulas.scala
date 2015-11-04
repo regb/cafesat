@@ -19,7 +19,7 @@ object Formulas {
 
   /** Represents a propositional formula.
     *
-    * The constructor is private to the package, as a formula should 
+    * The constructor is private, as a formula should 
     * always be created from helper functions in [[FormulaBuilder]].
     */
   class Formula private[api](
