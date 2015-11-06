@@ -30,15 +30,41 @@ trait Solver {
 }
 
 
-/** Contains helper functions to query CafeSat solvers on formulas. */
+/** Contains helper functions to query CafeSat solvers on formulas.
+  *
+  * Here is a simple example to get you started, we build a very simple formula
+  * and then send it as a parameter to [[Solver.solveForSatisfiability solveForSatisfiability]] 
+  * that returns an option of a [[Solver.Model Model]]:
+  * {{{
+  * import FormulaBuilder._
+  * import Formulas._
+  *
+  * val a: PropVar = propVar("a")
+  * val b: PropVar = propVar("b")
+  * val f: Formula = a && (!a || b)
+  * Solver.solveForSatisfiability(f) match {
+  *   case None => {
+  *     println("There is no solution")
+  *   }
+  *   case Some(model) => {
+  *     val valueA: Boolean = model(a)
+  *     val valueB: Boolean = model(b)
+  *     println("a is: " valueA)
+  *     println("b is: " valueB)
+  *   }
+  * }
+  * }}}
+  *
+  */
 object Solver {
 
+  /** The type returned on a satisfiable instance.  */
   type Model = Map[PropVar, Boolean]
 
   /** Checks the satisfiability of a formula.
     *
     * @param formula the formula to check for satisfiability
-    * @return `Some(model)` if the formula is satisfiable, and None if unsatisfiable
+    * @return `Some(model)` if the formula is satisfiable, and `None` if unsatisfiable
     */
   def solveForSatisfiability(formula: Formula): Option[Model] = {
     val f = formula.formula

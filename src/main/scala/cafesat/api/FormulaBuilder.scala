@@ -7,23 +7,24 @@ import asts.fol.Trees.{Or, And, freshPropositionalVariable}
 
 import scala.language.implicitConversions
 
-/** Contains helper functions for building [[Formulas.Formula]].
+/** Contains helper functions for building [[Formulas.Formula Formula]].
   *
   * The basic building blocks of formulas are true/false literals and propositional
-  * variables. You get a propositional variable with [[FormulaBuilder.propVar]] and
-  * [[FormulaBuilder.bool2formula]] provides an implicit conversion from `Boolean`
-  * to [[Formulas.True]]/[[Formulas.False]].
+  * variables. You get a [[Formulas.PropVar PropVar]] with [[FormulaBuilder.propVar propVar]] and
+  * [[FormulaBuilder.bool2formula bool2formula]] provides an implicit conversion from `Boolean`
+  * to [[Formulas.True True]]/[[Formulas.False False]].
   *
-  * Once you have a [[Formulas.Formula]] instance, you can combine it using its method
+  * Once you have a [[Formulas.Formula Formula]] instance, you can combine it using its methods
   * matching regular boolean operators. You can also use n-ary combinators 
-  * [[FormulaBuilder.or]] and [[FormulaBuilder.and]].
+  * [[FormulaBuilder.or or]] and [[FormulaBuilder.and and]].
 
   * {{{
+  * import Formulas._
   * import FormulaBuilder._
   *
-  * val a = propVar("a")
-  * val b = propVar("b")
-  * and(a, (!a || b), (!b || false))
+  * val a: PropVar = propVar("a")
+  * val b: PropVar = propVar("b")
+  * val f: Formula = and(a, (!a || b), (!b || false))
   * }}}
   */
 object FormulaBuilder {
@@ -52,7 +53,7 @@ object FormulaBuilder {
 
   /** Returns the formula representation of a propositional variable.
     *
-    * The propositional variable is always fresh and unique, there is no need to use
+    * The propositional variable is '''always fresh''' and unique, there is no need to use
     * a different name for different invocations. You need to maintain a pointer to the
     * returned instance if you want to refer to it later in your code.
     *

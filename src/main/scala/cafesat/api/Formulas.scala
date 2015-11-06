@@ -5,7 +5,24 @@ import asts.core.Trees.{Formula => CoreFormula, _}
 import asts.fol.Trees.{True => CoreTrue, False => CoreFalse, _}
 import asts.fol.Manip.{simplify => folSimplify, _}
 
-/** Contains class definitions for formulas. */
+/** Contains type definitions for formulas. 
+  *
+  * If you wish to instantiate a [[Formula]] or a [[PropVar]], you need
+  * to use [[FormulaBuilder]] that will provide a generator function to
+  * create [[PropVar]], and then build your formula from combinator 
+  * methods in [[Formula]].
+  *
+  * Here is a simple example that shows how to build a formula:
+  * {{{
+  * import FormulaBuilder._
+  * import Formulas._
+  *
+  * val a: PropVar = propVar("a")
+  * val b: PropVar = propVar("b")
+  * val f: Formula = a && (!a || b)
+  * }}}
+  *
+  */
 object Formulas {
 
   /*
