@@ -49,16 +49,17 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Contains helper functions for building <a href="Formulas$$Formula.html" class="extype" name="cafesat.api.Formulas.Formula">Formulas.Formula</a>.</p><p>The basic building blocks of formulas are true/false literals and propositional
-variables. You get a propositional variable with <a href="#propVar(prefix:String):cafesat.api.Formulas.PropVar" class="extmbr" name="cafesat.api.FormulaBuilder#propVar">FormulaBuilder.propVar</a> and
-<a href="#bool2formula(b:Boolean):cafesat.api.Formulas.Formula" class="extmbr" name="cafesat.api.FormulaBuilder#bool2formula">FormulaBuilder.bool2formula</a> provides an implicit conversion from <code>Boolean</code>
-to <a href="Formulas$$True$.html" class="extype" name="cafesat.api.Formulas.True">Formulas.True</a>/<a href="Formulas$$False$.html" class="extype" name="cafesat.api.Formulas.False">Formulas.False</a>.</p><p>Once you have a <a href="Formulas$$Formula.html" class="extype" name="cafesat.api.Formulas.Formula">Formulas.Formula</a> instance, you can combine it using its method
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Contains helper functions for building <a href="Formulas$$Formula.html" class="extype" name="cafesat.api.Formulas.Formula">Formula</a>.</p><p>The basic building blocks of formulas are true/false literals and propositional
+variables. You get a <a href="Formulas$$PropVar.html" class="extype" name="cafesat.api.Formulas.PropVar">PropVar</a> with <a href="#propVar(prefix:String):cafesat.api.Formulas.PropVar" class="extmbr" name="cafesat.api.FormulaBuilder#propVar">propVar</a> and
+<a href="#bool2formula(b:Boolean):cafesat.api.Formulas.Formula" class="extmbr" name="cafesat.api.FormulaBuilder#bool2formula">bool2formula</a> provides an implicit conversion from <code>Boolean</code>
+to <a href="Formulas$$True$.html" class="extype" name="cafesat.api.Formulas.True">True</a>/<a href="Formulas$$False$.html" class="extype" name="cafesat.api.Formulas.False">False</a>.</p><p>Once you have a <a href="Formulas$$Formula.html" class="extype" name="cafesat.api.Formulas.Formula">Formula</a> instance, you can combine it using its methods
 matching regular boolean operators. You can also use n-ary combinators
-<a href="#or(fs:cafesat.api.Formulas.Formula*):cafesat.api.Formulas.Formula" class="extmbr" name="cafesat.api.FormulaBuilder#or">FormulaBuilder.or</a> and <a href="#and(fs:cafesat.api.Formulas.Formula*):cafesat.api.Formulas.Formula" class="extmbr" name="cafesat.api.FormulaBuilder#and">FormulaBuilder.and</a>.</p><pre><span class="kw">import</span> FormulaBuilder._
+<a href="#or(fs:cafesat.api.Formulas.Formula*):cafesat.api.Formulas.Formula" class="extmbr" name="cafesat.api.FormulaBuilder#or">or</a> and <a href="#and(fs:cafesat.api.Formulas.Formula*):cafesat.api.Formulas.Formula" class="extmbr" name="cafesat.api.FormulaBuilder#and">and</a>.</p><pre><span class="kw">import</span> Formulas._
+<span class="kw">import</span> FormulaBuilder._
 
-<span class="kw">val</span> a = propVar(<span class="lit">"a"</span>)
-<span class="kw">val</span> b = propVar(<span class="lit">"b"</span>)
-and(a, (!a || b), (!b || <span class="kw">false</span>))</pre></div><div class="toggleContainer block">
+<span class="kw">val</span> a: PropVar = propVar(<span class="lit">"a"</span>)
+<span class="kw">val</span> b: PropVar = propVar(<span class="lit">"b"</span>)
+<span class="kw">val</span> f: Formula = and(a, (!a || b), (!b || <span class="kw">false</span>))</pre></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -440,7 +441,7 @@ and(a, (!a || b), (!b || <span class="kw">false</span>))</pre></div><div class="
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Returns the formula representation of a propositional variable.</p><div class="fullcomment"><div class="comment cmt"><p>Returns the formula representation of a propositional variable.</p><p>The propositional variable is always fresh and unique, there is no need to use
+      <p class="shortcomment cmt">Returns the formula representation of a propositional variable.</p><div class="fullcomment"><div class="comment cmt"><p>Returns the formula representation of a propositional variable.</p><p>The propositional variable is <b>always fresh</b> and unique, there is no need to use
 a different name for different invocations. You need to maintain a pointer to the
 returned instance if you want to refer to it later in your code.
 </p></div><dl class="paramcmts block"><dt class="param">prefix</dt><dd class="cmt"><p>a String prefix to the name of that variable</p></dd><dt>returns</dt><dd class="cmt"><p>A fresh and unique propositional variable with a name starting with <code>prefix</code></p></dd></dl></div>

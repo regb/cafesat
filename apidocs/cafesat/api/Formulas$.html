@@ -49,7 +49,15 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Contains class definitions for formulas.</p></div><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Contains type definitions for formulas.</p><p>If you wish to instantiate a <a href="Formulas$$Formula.html" class="extype" name="cafesat.api.Formulas.Formula">Formula</a> or a <a href="Formulas$$PropVar.html" class="extype" name="cafesat.api.Formulas.PropVar">PropVar</a>, you need
+to use <a href="FormulaBuilder$.html" class="extype" name="cafesat.api.FormulaBuilder">FormulaBuilder</a> that will provide a generator function to
+create <a href="Formulas$$PropVar.html" class="extype" name="cafesat.api.Formulas.PropVar">PropVar</a>, and then build your formula from combinator
+methods in <a href="Formulas$$Formula.html" class="extype" name="cafesat.api.Formulas.Formula">Formula</a>.</p><p>Here is a simple example that shows how to build a formula:</p><pre><span class="kw">import</span> FormulaBuilder._
+<span class="kw">import</span> Formulas._
+
+<span class="kw">val</span> a: PropVar = propVar(<span class="lit">"a"</span>)
+<span class="kw">val</span> b: PropVar = propVar(<span class="lit">"b"</span>)
+<span class="kw">val</span> f: Formula = a &amp;&amp; (!a || b)</pre></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>

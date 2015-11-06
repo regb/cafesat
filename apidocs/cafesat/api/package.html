@@ -47,21 +47,28 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Provides a simple abstraction on top of CafeSat functionalities.</p><p>This is the expected entry point to use CafeSat as a library to an
-external project. It provides a simple and high-level abstraction over
-formulas with an opaque type <a href="Formulas$$Formula.html" class="extype" name="cafesat.api.Formulas.Formula">cafesat.api.Formulas.Formula</a>, along
-with a simple language to build formulas and query their satisfiability.</p><p><a href="FormulaBuilder$.html" class="extype" name="cafesat.api.FormulaBuilder">FormulaBuilder</a> provides the main building blocks to build formulas.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Provides a simple abstraction on top of CafeSat functionalities.</p><p>This is the expected entry point to use CafeSat as a library.
+It provides a simple and high-level abstraction over
+formulas with an opaque type <a href="Formulas$$Formula.html" class="extype" name="cafesat.api.Formulas.Formula">Formulas.Formula</a>, along
+with a simple language to build formulas and query their satisfiability.</p><p><a href="Formulas$.html" class="extype" name="cafesat.api.Formulas">Formulas</a> contains the main definitions for the core types used to
+represent formulas.</p><p><a href="FormulaBuilder$.html" class="extype" name="cafesat.api.FormulaBuilder">FormulaBuilder</a> provides the main building blocks to build formulas.
 You typically start a formula with a <a href="FormulaBuilder$.html#propVar(prefix:String):cafesat.api.Formulas.PropVar" class="extmbr" name="cafesat.api.FormulaBuilder#propVar">FormulaBuilder.propVar</a> to obtain
 a propositional variable and then you can use boolean operators to build
-a more complex formula out of it.</p><p><a href="Solver.html" class="extype" name="cafesat.api.Solver">cafesat.api.Solver</a> provides functions to query a solver over formulas.</p><p>Here is a short example where CafeSat is used to check the satisfiability of
+a more complex formula out of it.</p><p><a href="Solver$.html" class="extype" name="cafesat.api.Solver">Solver</a> provides functions to query a solver over formulas.</p><p>Here is a short example where CafeSat is used to check the satisfiability of
 a simple formula:</p><pre><span class="kw">import</span> FormulaBuilder._
+<span class="kw">import</span> Formulas._
 
-<span class="kw">val</span> a = propVar(<span class="lit">"a"</span>)
-<span class="kw">val</span> b = propVar(<span class="lit">"b"</span>)
-<span class="kw">val</span> f = a &amp;&amp; (!a || b)
+<span class="kw">val</span> a: PropVar = propVar(<span class="lit">"a"</span>)
+<span class="kw">val</span> b: PropVar = propVar(<span class="lit">"b"</span>)
+<span class="kw">val</span> f: Formula = a &amp;&amp; (!a || b)
 Solver.solveForSatisfiability(f) <span class="kw">match</span> {
-  <span class="kw">case</span> <span class="std">None</span> <span class="kw">=&gt;</span> ???
-  <span class="kw">case</span> <span class="std">Some</span>(model) <span class="kw">=&gt;</span> ???
+  <span class="kw">case</span> <span class="std">None</span> <span class="kw">=&gt;</span> {
+    println(<span class="lit">"There is no solution"</span>)
+  }
+  <span class="kw">case</span> <span class="std">Some</span>(model) <span class="kw">=&gt;</span> {
+    println(<span class="lit">"a is: "</span> + model(a))
+    println(<span class="lit">"b is: "</span> + model(b))
+  }
 }</pre></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
@@ -160,17 +167,18 @@ Solver.solveForSatisfiability(f) <span class="kw">match</span> {
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Contains helper functions for building <a href="Formulas$$Formula.html" class="extype" name="cafesat.api.Formulas.Formula">Formulas.Formula</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Contains helper functions for building <a href="Formulas$$Formula.html" class="extype" name="cafesat.api.Formulas.Formula">Formulas.Formula</a>.</p><p>The basic building blocks of formulas are true/false literals and propositional
-variables. You get a propositional variable with <a href="FormulaBuilder$.html#propVar(prefix:String):cafesat.api.Formulas.PropVar" class="extmbr" name="cafesat.api.FormulaBuilder#propVar">FormulaBuilder.propVar</a> and
-<a href="FormulaBuilder$.html#bool2formula(b:Boolean):cafesat.api.Formulas.Formula" class="extmbr" name="cafesat.api.FormulaBuilder#bool2formula">FormulaBuilder.bool2formula</a> provides an implicit conversion from <code>Boolean</code>
-to <a href="Formulas$$True$.html" class="extype" name="cafesat.api.Formulas.True">Formulas.True</a>/<a href="Formulas$$False$.html" class="extype" name="cafesat.api.Formulas.False">Formulas.False</a>.</p><p>Once you have a <a href="Formulas$$Formula.html" class="extype" name="cafesat.api.Formulas.Formula">Formulas.Formula</a> instance, you can combine it using its method
+      <p class="shortcomment cmt">Contains helper functions for building <a href="Formulas$$Formula.html" class="extype" name="cafesat.api.Formulas.Formula">Formula</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Contains helper functions for building <a href="Formulas$$Formula.html" class="extype" name="cafesat.api.Formulas.Formula">Formula</a>.</p><p>The basic building blocks of formulas are true/false literals and propositional
+variables. You get a <a href="Formulas$$PropVar.html" class="extype" name="cafesat.api.Formulas.PropVar">PropVar</a> with <a href="FormulaBuilder$.html#propVar(prefix:String):cafesat.api.Formulas.PropVar" class="extmbr" name="cafesat.api.FormulaBuilder#propVar">propVar</a> and
+<a href="FormulaBuilder$.html#bool2formula(b:Boolean):cafesat.api.Formulas.Formula" class="extmbr" name="cafesat.api.FormulaBuilder#bool2formula">bool2formula</a> provides an implicit conversion from <code>Boolean</code>
+to <a href="Formulas$$True$.html" class="extype" name="cafesat.api.Formulas.True">True</a>/<a href="Formulas$$False$.html" class="extype" name="cafesat.api.Formulas.False">False</a>.</p><p>Once you have a <a href="Formulas$$Formula.html" class="extype" name="cafesat.api.Formulas.Formula">Formula</a> instance, you can combine it using its methods
 matching regular boolean operators. You can also use n-ary combinators
-<a href="FormulaBuilder$.html#or(fs:cafesat.api.Formulas.Formula*):cafesat.api.Formulas.Formula" class="extmbr" name="cafesat.api.FormulaBuilder#or">FormulaBuilder.or</a> and <a href="FormulaBuilder$.html#and(fs:cafesat.api.Formulas.Formula*):cafesat.api.Formulas.Formula" class="extmbr" name="cafesat.api.FormulaBuilder#and">FormulaBuilder.and</a>.</p><pre><span class="kw">import</span> FormulaBuilder._
+<a href="FormulaBuilder$.html#or(fs:cafesat.api.Formulas.Formula*):cafesat.api.Formulas.Formula" class="extmbr" name="cafesat.api.FormulaBuilder#or">or</a> and <a href="FormulaBuilder$.html#and(fs:cafesat.api.Formulas.Formula*):cafesat.api.Formulas.Formula" class="extmbr" name="cafesat.api.FormulaBuilder#and">and</a>.</p><pre><span class="kw">import</span> Formulas._
+<span class="kw">import</span> FormulaBuilder._
 
-<span class="kw">val</span> a = propVar(<span class="lit">"a"</span>)
-<span class="kw">val</span> b = propVar(<span class="lit">"b"</span>)
-and(a, (!a || b), (!b || <span class="kw">false</span>))</pre></div></div>
-    </li><li name="cafesat.api.Formulas" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+<span class="kw">val</span> a: PropVar = propVar(<span class="lit">"a"</span>)
+<span class="kw">val</span> b: PropVar = propVar(<span class="lit">"b"</span>)
+<span class="kw">val</span> f: Formula = and(a, (!a || b), (!b || <span class="kw">false</span>))</pre></div></div>
+    </li><li name="cafesat.api.Formulas" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="Formulas"></a>
       <a id="Formulas:Formulas"></a>
       <h4 class="signature">
@@ -186,8 +194,16 @@ and(a, (!a || b), (!b || <span class="kw">false</span>))</pre></div></div>
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Contains class definitions for formulas.</p>
-    </li><li name="cafesat.api.Solver" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Contains type definitions for formulas.</p><div class="fullcomment"><div class="comment cmt"><p>Contains type definitions for formulas.</p><p>If you wish to instantiate a <a href="Formulas$$Formula.html" class="extype" name="cafesat.api.Formulas.Formula">Formula</a> or a <a href="Formulas$$PropVar.html" class="extype" name="cafesat.api.Formulas.PropVar">PropVar</a>, you need
+to use <a href="FormulaBuilder$.html" class="extype" name="cafesat.api.FormulaBuilder">FormulaBuilder</a> that will provide a generator function to
+create <a href="Formulas$$PropVar.html" class="extype" name="cafesat.api.Formulas.PropVar">PropVar</a>, and then build your formula from combinator
+methods in <a href="Formulas$$Formula.html" class="extype" name="cafesat.api.Formulas.Formula">Formula</a>.</p><p>Here is a simple example that shows how to build a formula:</p><pre><span class="kw">import</span> FormulaBuilder._
+<span class="kw">import</span> Formulas._
+
+<span class="kw">val</span> a: PropVar = propVar(<span class="lit">"a"</span>)
+<span class="kw">val</span> b: PropVar = propVar(<span class="lit">"b"</span>)
+<span class="kw">val</span> f: Formula = a &amp;&amp; (!a || b)</pre></div></div>
+    </li><li name="cafesat.api.Solver" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="Solver"></a>
       <a id="Solver:Solver"></a>
       <h4 class="signature">
@@ -203,7 +219,25 @@ and(a, (!a || b), (!b || <span class="kw">false</span>))</pre></div></div>
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Contains helper functions to query CafeSat solvers on formulas.</p>
+      <p class="shortcomment cmt">Contains helper functions to query CafeSat solvers on formulas.</p><div class="fullcomment"><div class="comment cmt"><p>Contains helper functions to query CafeSat solvers on formulas.</p><p>Here is a simple example to get you started, we build a very simple formula
+and then send it as a parameter to <a href="Solver$.html#solveForSatisfiability(formula:cafesat.api.Formulas.Formula):Option[cafesat.api.Solver.Model]" class="extmbr" name="cafesat.api.Solver#solveForSatisfiability">solveForSatisfiability</a>
+that returns an option of a <a href="Solver$.html#Model=Map[cafesat.api.Formulas.PropVar,Boolean]" class="extmbr" name="cafesat.api.Solver.Model">Model</a>:</p><pre><span class="kw">import</span> FormulaBuilder._
+<span class="kw">import</span> Formulas._
+
+<span class="kw">val</span> a: PropVar = propVar(<span class="lit">"a"</span>)
+<span class="kw">val</span> b: PropVar = propVar(<span class="lit">"b"</span>)
+<span class="kw">val</span> f: Formula = a &amp;&amp; (!a || b)
+Solver.solveForSatisfiability(f) <span class="kw">match</span> {
+  <span class="kw">case</span> <span class="std">None</span> <span class="kw">=&gt;</span> {
+    println(<span class="lit">"There is no solution"</span>)
+  }
+  <span class="kw">case</span> <span class="std">Some</span>(model) <span class="kw">=&gt;</span> {
+    <span class="kw">val</span> valueA: <span class="std">Boolean</span> = model(a)
+    <span class="kw">val</span> valueB: <span class="std">Boolean</span> = model(b)
+    println(<span class="lit">"a is: "</span> valueA)
+    println(<span class="lit">"b is: "</span> valueB)
+  }
+}</pre></div></div>
     </li></ol>
             </div>
 

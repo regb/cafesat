@@ -51,7 +51,25 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Contains helper functions to query CafeSat solvers on formulas.</p></div><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Contains helper functions to query CafeSat solvers on formulas.</p><p>Here is a simple example to get you started, we build a very simple formula
+and then send it as a parameter to <a href="#solveForSatisfiability(formula:cafesat.api.Formulas.Formula):Option[cafesat.api.Solver.Model]" class="extmbr" name="cafesat.api.Solver#solveForSatisfiability">solveForSatisfiability</a>
+that returns an option of a <a href="#Model=Map[cafesat.api.Formulas.PropVar,Boolean]" class="extmbr" name="cafesat.api.Solver.Model">Model</a>:</p><pre><span class="kw">import</span> FormulaBuilder._
+<span class="kw">import</span> Formulas._
+
+<span class="kw">val</span> a: PropVar = propVar(<span class="lit">"a"</span>)
+<span class="kw">val</span> b: PropVar = propVar(<span class="lit">"b"</span>)
+<span class="kw">val</span> f: Formula = a &amp;&amp; (!a || b)
+Solver.solveForSatisfiability(f) <span class="kw">match</span> {
+  <span class="kw">case</span> <span class="std">None</span> <span class="kw">=&gt;</span> {
+    println(<span class="lit">"There is no solution"</span>)
+  }
+  <span class="kw">case</span> <span class="std">Some</span>(model) <span class="kw">=&gt;</span> {
+    <span class="kw">val</span> valueA: <span class="std">Boolean</span> = model(a)
+    <span class="kw">val</span> valueB: <span class="std">Boolean</span> = model(b)
+    println(<span class="lit">"a is: "</span> valueA)
+    println(<span class="lit">"b is: "</span> valueB)
+  }
+}</pre></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -108,7 +126,7 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">The type returned on a satisfiable instance.</p>
     </li></ol>
             </div>
 
@@ -383,7 +401,7 @@
       </a>
     </span>
       <p class="shortcomment cmt">Checks the satisfiability of a formula.</p><div class="fullcomment"><div class="comment cmt"><p>Checks the satisfiability of a formula.
-</p></div><dl class="paramcmts block"><dt class="param">formula</dt><dd class="cmt"><p>the formula to check for satisfiability</p></dd><dt>returns</dt><dd class="cmt"><p><code>Some(model)</code> if the formula is satisfiable, and None if unsatisfiable</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">formula</dt><dd class="cmt"><p>the formula to check for satisfiability</p></dd><dt>returns</dt><dd class="cmt"><p><code>Some(model)</code> if the formula is satisfiable, and <code>None</code> if unsatisfiable</p></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
