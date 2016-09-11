@@ -114,6 +114,9 @@ class AdtSolverSpec extends FlatSpec with BeforeAndAfter {
     println("")
   }
 
+  /* ===============
+   * Testing on simple finite signature
+   * =============== */
 
   "Solver" should "return sat on empty constraints" in new SimpleFiniteSig {
     assertSat()
@@ -187,14 +190,47 @@ class AdtSolverSpec extends FlatSpec with BeforeAndAfter {
     assertSat()
   }
 
-  it should "return sat on list equality" in new FiniteAndListSig {
+
+  /* ===============
+   * Testing on a List with simple finite constructors
+   * =============== */
+
+  it should "return sat on equality of empty lists" in new FiniteAndListSig {
+    override val eqs = Seq( (Nil, Nil) )
+    assertSat()
+  }
+  it should "return sat on list with same constants" in new FiniteAndListSig {
+    override val eqs = Seq( (Cons(Fina,Nil), Cons(Fina,Nil)) )
+    assertSat()
+  }
+  it should "return unsat on list with different constants" in new FiniteAndListSig {
+    override val eqs = Seq( (Cons(Fina,Nil), Cons(Finb,Nil)) )
+    assertUnsat()
+  }
+  it should "return unsat when x is two different constructors" in new FiniteAndListSig {
+    val x = Variable(1)
+    val y = Variable(2)
+    val z = Variable(3)
+    override val eqs = Seq( (x, Cons(y,z)), (x, Nil) )
+    assertUnsatDueTo[EmptyLabelling]()
+  }
+  it should "return unsat when x=y but two different constructors" in new FiniteAndListSig {
+    val x = Variable(1)
+    val y = Variable(2)
+    val z = Variable(3)
+    val z2 = Variable(4)
+    override val eqs = Seq( (x, Cons(z,z2)), (y, Nil), (x,y) )
+    assertUnsatDueTo[EmptyLabelling]()
+  }
+
+  it should "return sat on list equality with variables" in new FiniteAndListSig {
     val x = Variable(1)
     val y = Variable(2)
     override val eqs = Seq( (Cons(x,Nil), Cons(y,Nil)) )
     assertSat()
   }
 
-  it should "return unsat on list inequality" in new FiniteAndListSig {
+  it should "return unsat on list inequality with variable" in new FiniteAndListSig {
     val x = Variable(1)
     val y = Variable(2)
     override val eqs = Seq( (Cons(x,Nil), Cons(y,Nil)) )
@@ -203,6 +239,12 @@ class AdtSolverSpec extends FlatSpec with BeforeAndAfter {
   }
 
   it should "return unsat on list cycle" in new FiniteAndListSig {
+    val x = Variable(1)
+    val y = Variable(2)
+    override val eqs = Seq( (Cons(x,y), y) )
+    assertUnsatDueTo[Cyclic]()
+  }
+  it should "return unsat on list cycle with inconsistant variables" in new FiniteAndListSig {
     val x = Variable(1)
     override val eqs = Seq( (Cons(x,Nil), x) )
     assertUnsatDueTo[Cyclic]()
@@ -217,6 +259,11 @@ class AdtSolverSpec extends FlatSpec with BeforeAndAfter {
     val x = Variable(1)
     override val eqs = Seq( (Cons(Fina,Nil), Cons(Fina,Cons(Fina,x))) )
     assertUnsatDueTo[EmptyLabelling]()
+  }
+  it should "return sat on list with variable equals Nil" in new FiniteAndListSig {
+    val x = Variable(1)
+    override val eqs = Seq( (Cons(Fina,x), Cons(Fina,Nil)) )
+    assertSat()
   }
 
   it should "return unsat on trivial selector inequality" in new FiniteAndListSig {
@@ -269,7 +316,8 @@ class AdtSolverSpec extends FlatSpec with BeforeAndAfter {
     val z = Variable(3)
     override val eqs = Seq( (Head(x), z), (Tail(x), Nil) )
     override val ineqs = Seq( (x, Cons(z,Nil)) )
-    assertUnsatDueTo[InvalidEquality]()
+    //assertUnsatDueTo[InvalidEquality]()
+    assertUnsat()
   }
 
   it should "return unsat on degenerate cyclic list example" in new FiniteAndListSig {
