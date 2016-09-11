@@ -46,6 +46,9 @@ case class Instance(sig: Signature,
     }
 }
 
+//TODO: maybe add a ConstructorSig(sorts: Seq[SortRef]) and use it in Signature?
+//      case class Signature(sorts: Seq[Seq[ConstructorSig]], ...)
+
 // Signature =^ seq of sorts, sort =^ seq of ctors, ctor =^ seq of arg. sorts
 case class Signature(sorts: Seq[Seq[Seq[SortRef]]], designatedTerms: Seq[Seq[Seq[Term]]]) {
   val sortRefs: Seq[SortRef] = (0 until sorts.size).toSeq
@@ -122,14 +125,14 @@ case class Sat(model: Seq[(Option[(SortRef, CtorRef)], Seq[Term])]) extends Resu
 // NOTE: The UnsatReason is only meaningful when no splitting was required.
 case class Unsat(reason: UnsatReason) extends Result
 
-abstract class UnsatReason
+sealed trait UnsatReason
 case class Clash(ri: TermRef, rj: TermRef) extends UnsatReason
 case class Cyclic(ri: TermRef, rj: TermRef) extends UnsatReason
 case class EmptyLabelling(r: TermRef) extends UnsatReason
 case class InvalidEquality(i: TermRef, j: TermRef) extends UnsatReason
 
 
-class AdtSolver() {
+class AdtSolver {
 
   case class State(
     nextTermId: TermRef, maxVarId: VarId,

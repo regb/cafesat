@@ -1,5 +1,5 @@
 package cafesat
-package theories.sav
+package theories.adt
 
 import org.scalatest._
 
@@ -11,15 +11,15 @@ import scala.reflect.ClassTag
 class AdtSolverSpec extends FlatSpec with BeforeAndAfter {
 
   private var _currentTestName: String = "<Unset>"
-  def currentTestName = _currentTestName
-  override protected def runTest(testName: String, reporter: Reporter,
-                                  stopper: Stopper, configMap: Map[String, Any],
-                                  tracker: Tracker): Unit = {
-    _currentTestName = testName
-    super.runTest(testName, reporter, stopper, configMap, tracker)
-  }
+  def currentTestName = "unknown"//_currentTestName
+  //override protected def runTest(testName: String, reporter: Reporter,
+  //                                stopper: Stopper, configMap: Map[String, Any],
+  //                                tracker: Tracker): Unit = {
+  //  _currentTestName = testName
+  //  super.runTest(testName, reporter, stopper, configMap, tracker)
+  //}
 
-  import types._
+  import Types._
 
   trait FreshSolver {
     val solver = new AdtSolver
@@ -34,7 +34,7 @@ class AdtSolverSpec extends FlatSpec with BeforeAndAfter {
 
     def checkSplitting() = {
       val didSplit = solver.debugDidSplit()
-      if (expectSplitting.isDefined && expectSplitting.head != didSplit)
+      if (expectSplitting.exists(_ != didSplit))
         fail(if (didSplit) "Unexpected splitting" else "Expected splitting, but none occurred")
     }
 
@@ -133,12 +133,21 @@ class AdtSolverSpec extends FlatSpec with BeforeAndAfter {
   }
 
   it should "return sat on trivial unification" in new SimpleFiniteSig {
-    override val eqs = Seq((Variable(1), Fina) )
+    override val eqs = Seq((Variable(1), Fina))
+    assertSat()
+  }
+  it should "return sat on trivial multiple unification" in new SimpleFiniteSig {
+    override val eqs = Seq((Variable(1), Fina), (Variable(2), Finb))
+    assertSat()
+  }
+
+  it should "return sat on trivial equality of constructors" in new SimpleFiniteSig {
+    override val eqs = Seq((Finb, Finb))
     assertSat()
   }
 
   it should "return unsat on trivially distinct constructors" in new SimpleFiniteSig {
-    override val eqs = Seq((Fina, Finb) )
+    override val eqs = Seq((Fina, Finb))
     assertUnsatDueTo[EmptyLabelling]()
   }
 
@@ -156,14 +165,25 @@ class AdtSolverSpec extends FlatSpec with BeforeAndAfter {
     assertUnsatDueTo[InvalidEquality]()
   }
 
-  it should "return sat on simple equality" in new SimpleFiniteSig {
+  it should "return unsat on distinct constructors with variable equality" in new SimpleFiniteSig {
+    override val eqs = Seq(
+      (Variable(1), Fina),
+      (Variable(2), Finb),
+      (Variable(1), Variable(2))
+    )
+    assertUnsatDueTo[EmptyLabelling]()
+  }
+
+  it should "return sat on simple equality 1" in new SimpleFiniteSig {
     override val eqs = Seq((Variable(1), Fina), (Variable(1), Fina) )
     assertSat()
   }
   it should "return sat on simple equality 2" in new SimpleFiniteSig {
-    override val eqs = Seq((Variable(1), Fina),
+    override val eqs = Seq(
+      (Variable(1), Fina),
       (Variable(2), Fina),
-      (Variable(1), Variable(2)) )
+      (Variable(1), Variable(2))
+    )
     assertSat()
   }
 
