@@ -8,7 +8,7 @@ import scala.reflect.ClassTag
 /**
  * Created by gs on 14.05.15.
  */
-class AdtSolverSpec extends FlatSpec with BeforeAndAfter {
+class AdtSolverSpec extends FlatSpec with BeforeAndAfter with AdtSolverSpecHelpers {
 
   //TODO: could be useful to have that for debugging
   //private var _currentTestName: String = "<Unset>"
@@ -30,71 +30,12 @@ class AdtSolverSpec extends FlatSpec with BeforeAndAfter {
 
   import Types._
 
-  trait FreshSolver {
-    val solver = new AdtSolver
-    val sig: Signature
-    val declaredTypes: Typing = Map()
-    val eqs: Seq[(Term, Term)] = Seq()
-    val ineqs: Seq[(Term, Term)] = Seq()
-    val tests: Seq[Tester] = Seq()
-    val negtests: Seq[Tester] = Seq()
-
-    val expectSplitting: Option[Boolean] = None //Some(false)
-
-    def checkSplitting() = {
-      val didSplit = solver.debugDidSplit()
-      if (expectSplitting.exists(_ != didSplit))
-        fail(if (didSplit) "Unexpected splitting" else "Expected splitting, but none occurred")
-    }
-
-    def solve =
-      solver.solve(Instance(sig, declaredTypes, eqs, ineqs, tests, negtests))
-
-    def assertSat(dumpModel: Boolean = false) = {
-      solve match {
-        case Unsat(reason) =>
-          fail(s"Unexpectedly unsat: $reason\n" + solver.dumpTerms())
-        case Sat(model) => // Ok
-          if (dumpModel) {
-            println(s"Model:")
-//            for (terms <- model; termsSorted = terms.sortBy(solver.termNiceness(_)) if terms.size > 1)
-//              println(s"\t${termsSorted.mkString(" = ")}")
-            for ((lblOption, terms) <- model; termsSorted = terms.sortBy(solver.termNiceness))
-              println(s"\t$lblOption | ${termsSorted.mkString(" = ")}")
-          }
-      }
-      checkSplitting()
-    }
-    def assertUnsat() = {
-      solve match {
-        case Sat(_) => fail(s"Unexpectedly sat")
-        case _ => // Ok
-      }
-      checkSplitting()
-    }
-    def assertUnsatDueTo[T <: UnsatReason]()(implicit ev: ClassTag[T]) = {
-      solve match {
-        case Sat(_) => fail(s"Unexpectedly sat")
-        case Unsat(_: T) => // Ok
-        case Unsat(reason) => fail(s"Expected unsat due to $ev, instead got $reason")
-      }
-      checkSplitting()
-    }
-  }
-  trait SimpleFiniteSig extends FreshSolver {
-    val Fina = Constructor(0,0,List())
-    val Finb = Constructor(0,1,List())
-
-    val sigFin = Seq(Seq(), Seq()) // Cona, Conb
-    val sigFinDts = Seq(Seq(), Seq())
-    val sig = Signature(Seq(sigFin), Seq(sigFinDts))
-  }
   trait FiniteAndListSig extends SimpleFiniteSig {
     def Cons(h: Term, t:Term) = Constructor(1,0,List(h,t))
     val Nil = Constructor(1,1,List())
     def Head(cons: Term) = Selector(1,0,0,cons)
     def Tail(cons: Term) = Selector(1,0,1,cons)
-
+  
     val sigList = Seq(Seq(0,1), Seq()) // Cons(Fin, List), Nil
     val sigListDts = Seq(Seq(Nil, Nil), Seq())
     override val sig = Signature(Seq(sigFin, sigList), Seq(sigFinDts, sigListDts))
@@ -103,12 +44,12 @@ class AdtSolverSpec extends FlatSpec with BeforeAndAfter {
     def Succ(pred: Term) = Constructor(0,0,List(pred))
     val Zero = Constructor(0,1,List())
     def Pred(succ: Term) = Selector(0,0,0,succ)
-
+  
     def Cons(h: Term, t:Term) = Constructor(1,0,List(h,t))
     val Nil = Constructor(1,1,List())
     def Head(cons: Term) = Selector(1,0,0,cons)
     def Tail(cons: Term) = Selector(1,0,1,cons)
-
+  
     val sigSInt = Seq(Seq(0), Seq()) // Succ(SInt), Zero
     val sigSIntDts = Seq(Seq(Zero), Seq())
     val sigList = Seq(Seq(0,1), Seq()) // Cons(SInt, List), Nil
