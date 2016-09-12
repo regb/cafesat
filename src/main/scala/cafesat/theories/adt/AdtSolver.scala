@@ -303,15 +303,17 @@ class AdtSolver {
     instantiated  += false
     term match {
       case Constructor(sort, ctor, _) =>
+        //TODO: rules in the paper don't seem to instantiate there
         instantiated(id) = true // (must be set before label to avoid marking for potentialInst)
         labels(id) = Some((sort, newCtorRefSet(Set(ctor))))
         // FIXME: Should we label our children? (The paper doesn't seem to prescribe this)
       case term@Selector(sort, ctor, index0, arg) =>
         val argSort = sig.argSort(sort, ctor, index0)
         label(id, argSort, sig.ctorRefs(argSort))
+        //TODO: selectee is head?
         val selectee = subTermRefs.head
         if (instantiated(selectee)) {
-          downSet push(id, outEdges(selectee)(index0))
+          downSet.push(id, outEdges(selectee)(index0))
         } else {
           selectorsOf.getOrElseUpdate(selectee, new mutable.HashMap) += (sort, ctor, index0) -> term
 //          potentialInst add id

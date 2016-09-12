@@ -10,14 +10,23 @@ import scala.reflect.ClassTag
  */
 class AdtSolverSpec extends FlatSpec with BeforeAndAfter {
 
-  private var _currentTestName: String = "<Unset>"
-  def currentTestName = "unknown"//_currentTestName
+  //TODO: could be useful to have that for debugging
+  //private var _currentTestName: String = "<Unset>"
+  //def currentTestName = "unknown"//_currentTestName
   //override protected def runTest(testName: String, reporter: Reporter,
   //                                stopper: Stopper, configMap: Map[String, Any],
   //                                tracker: Tracker): Unit = {
   //  _currentTestName = testName
   //  super.runTest(testName, reporter, stopper, configMap, tracker)
   //}
+
+  //before {
+  //  println(s"== $currentTestName ==")
+  //}
+  //after {
+  //  println("")
+  //}
+
 
   import Types._
 
@@ -105,13 +114,6 @@ class AdtSolverSpec extends FlatSpec with BeforeAndAfter {
     val sigList = Seq(Seq(0,1), Seq()) // Cons(SInt, List), Nil
     val sigListDts = Seq(Seq(Zero, Nil), Seq())
     override val sig = Signature(Seq(sigSInt, sigList), Seq(sigSIntDts, sigListDts))
-  }
-
-  before {
-    println(s"== $currentTestName ==")
-  }
-  after {
-    println("")
   }
 
   /* ===============
@@ -339,13 +341,13 @@ class AdtSolverSpec extends FlatSpec with BeforeAndAfter {
 
 
   it should "return sat on our sample for branching" in new SIntAndIntListSig {
-    solver.debugOn
+    //solver.debugOn
     val x = Variable(1)
     val m = Variable(2)
     val y = Variable(3)
     override val eqs = Seq( (x, Cons(m, y)) )
     override val ineqs = Seq( (m, Zero), (Head(y), Zero) )
-    assertSat(true)
+    assertSat()
   }
 
 }
