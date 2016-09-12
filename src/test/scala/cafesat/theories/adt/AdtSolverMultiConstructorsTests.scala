@@ -30,6 +30,31 @@ class AdtSolverMultiConstructorsTests extends FlatSpec with AdtSolverSpecHelpers
     assertSat()
   }
 
+  it should "return sat when same constructor" in new FiniteAndMultiCtors {
+    val x = Variable(1)
+    val y = Variable(2)
+    val z = Variable(3)
+    override val eqs = Seq((C1(x), z), (C1(y), z))
+    assertSat()
+  }
+
+  it should "return unsat when same constructor but arguments differ" in new FiniteAndMultiCtors {
+    val x = Variable(1)
+    val y = Variable(2)
+    val z = Variable(3)
+    override val eqs = Seq((C1(x), z), (C1(y), z))
+    override val ineqs = Seq((x, y))
+    assertUnsatDueTo[InvalidEquality]()
+  }
+
+  it should "return unsat when different constructors" in new FiniteAndMultiCtors {
+    val x = Variable(1)
+    val y = Variable(2)
+    val z = Variable(3)
+    override val eqs = Seq((C1(x), z), (C2(y), z))
+    assertUnsatDueTo[EmptyLabelling]()
+  }
+
   it should "return unsat when x is used with different selectors" in new FiniteAndMultiCtors {
     val x = Variable(1)
     val y = Variable(2)
