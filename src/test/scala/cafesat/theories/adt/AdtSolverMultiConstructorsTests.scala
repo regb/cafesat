@@ -55,11 +55,46 @@ class AdtSolverMultiConstructorsTests extends FlatSpec with AdtSolverSpecHelpers
     assertUnsatDueTo[EmptyLabelling]()
   }
 
-  it should "return unsat when x is used with different selectors" in new FiniteAndMultiCtors {
+  //This is quite tricky, we are using x with S1 and S2, meaning that intuitively there
+  //should not be such an x (cannot be both of C1 and C2 constructor), but according to
+  //the rules and the usual semantics of ADTs, this should actually be SAT. This is
+  //due to selectors being partial functions, but being extended to a total function via
+  //a distinguished term, which means that it is ok to apply to wrong constructors.
+  it should "return sat when x is used with different selectors" in new FiniteAndMultiCtors {
     val x = Variable(1)
     val y = Variable(2)
     val z = Variable(3)
     override val eqs = Seq((S1(x), y), (S2(x), z))
+    assertSat()
+  }
+
+  //still sat, for similar reason as above
+  it should "return sat when x is used with different selectors and tester forces one" in new FiniteAndMultiCtors {
+    val x = Variable(1)
+    val y = Variable(2)
+    val z = Variable(3)
+    override val eqs = Seq((S1(x), y), (S2(x), z))
+    override val tests = Seq( Tester(1,0,x) )
+    assertSat()
+  }
+
+  it should "return sat when x is used with different selectors and one is different from distinguished term" in new FiniteAndMultiCtors {
+    val x = Variable(1)
+    val y = Variable(2)
+    val z = Variable(3)
+    override val eqs = Seq((S1(x), y), (S2(x), z), (z, Fina))
+    assertSat()
+  }
+
+  //but that one should be unsat, because we force x to be C1, meaning that S2(x) will
+  //work but be assigned to the distinguished term (Finb), and we finally force z to
+  //be Fina.
+  it should "return unsat when x is used with different selectors and result differ from distinguished term" in new FiniteAndMultiCtors {
+    val x = Variable(1)
+    val y = Variable(2)
+    val z = Variable(3)
+    override val eqs = Seq((S1(x), y), (S2(x), z), (z, Fina))
+    override val tests = Seq( Tester(1,0,x) )
     assertUnsat()
   }
 }
