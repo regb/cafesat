@@ -32,6 +32,15 @@ class AdtSolverListsTests extends FlatSpec with BeforeAndAfter with AdtSolverSpe
     val Nil = Constructor(1,1,List())
     def Head(cons: Term) = Selector(1,0,0,cons)
     def Tail(cons: Term) = Selector(1,0,1,cons)
+    
+    def IsCons(t: Term): Tester = Tester(1,0,t)
+    def IsNil(t: Term): Tester = Tester(1,1,t)
+
+    def TailN(n: Int, base: Term): Term = n match {
+      case 0 => base
+      case 1 => Tail(base)
+      case i => Tail(TailN(i-1, base))
+    }
   
     val sigList = Seq(Seq(0,1), Seq()) // Cons(Fin, List), Nil
     val sigListDts = Seq(Seq(Nil, Nil), Seq())
@@ -136,7 +145,7 @@ class AdtSolverListsTests extends FlatSpec with BeforeAndAfter with AdtSolverSpe
     val x = Variable(1)
     override val eqs = Seq( (Head(x), Fina), (Tail(x), Nil) )
     override val ineqs = Seq( (x, Cons(Fina,Nil)) )
-    override val tests = Seq( Tester(1,0,x) )
+    override val tests = Seq( IsCons(x) )
     assertUnsatDueTo[InvalidEquality]()
   }
   it should "return unsat on simple instantiation of Cons, with merge, no splitting" in new FiniteAndListSig {
@@ -144,7 +153,7 @@ class AdtSolverListsTests extends FlatSpec with BeforeAndAfter with AdtSolverSpe
     val y = Variable(2)
     override val eqs = Seq( (Head(x), Fina), (Tail(y), Nil), (x,y) )
     override val ineqs = Seq( (x, Cons(Fina,Nil)) )
-    override val tests = Seq( Tester(1,0,x) )
+    override val tests = Seq( IsCons(x) )
     assertUnsatDueTo[InvalidEquality]()
   }
   it should "return unsat on simple instantiation of Cons, with merge, no splitting, free var" in new FiniteAndListSig {
@@ -153,7 +162,7 @@ class AdtSolverListsTests extends FlatSpec with BeforeAndAfter with AdtSolverSpe
     val z = Variable(3)
     override val eqs = Seq( (Head(x), z), (Tail(y), Nil), (x,y) )
     override val ineqs = Seq( (x, Cons(z,Nil)) )
-    override val tests = Seq( Tester(1,0,x) )
+    override val tests = Seq( IsCons(x) )
     assertUnsatDueTo[InvalidEquality]()
   }
   it should "return unsat on simple instantiation of Cons, with splitting" in new FiniteAndListSig {
@@ -172,17 +181,20 @@ class AdtSolverListsTests extends FlatSpec with BeforeAndAfter with AdtSolverSpe
     override val expectSplitting = Some(true)
     val x = Variable(1)
     val z = Variable(3)
-    def TailN: (Int, Term) => Term = (n, arg) => n match {
-      case 0 => arg
-      case 1 => Tail(arg)
-      case i => Tail(TailN(i-1, arg))
-    }
     override val eqs = Seq( (TailN(2,z), x), (z, x) )
-    override val tests = Seq( Tester(1,0,z) )
+    override val tests = Seq( IsCons(z) )
     assertUnsat()
   }
 
   // TODO: Test case to check Instantiate 2 rule
 
+  it should "return unsat on deep cycle of tails, with splitting" in new FiniteAndListSig {
+    override val expectSplitting = Some(true)
+    val x = Variable(1)
+    val z = Variable(3)
+    override val eqs = Seq((TailN(20,z), x), (z,x))
+    override val tests = Seq(IsCons(z))
+    assertUnsat()
+  }
 
 }
