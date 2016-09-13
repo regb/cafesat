@@ -5,10 +5,7 @@ import org.scalatest._
 
 import scala.reflect.ClassTag
 
-/**
- * Created by gs on 14.05.15.
- */
-class AdtSolverSpec extends FlatSpec with BeforeAndAfter with AdtSolverSpecHelpers {
+class AdtSolverListsTests extends FlatSpec with BeforeAndAfter with AdtSolverSpecHelpers {
 
   //TODO: could be useful to have that for debugging
   //private var _currentTestName: String = "<Unset>"
@@ -40,103 +37,10 @@ class AdtSolverSpec extends FlatSpec with BeforeAndAfter with AdtSolverSpecHelpe
     val sigListDts = Seq(Seq(Nil, Nil), Seq())
     override val sig = Signature(Seq(sigFin, sigList), Seq(sigFinDts, sigListDts))
   }
-  trait SIntAndIntListSig extends FreshSolver {
-    def Succ(pred: Term) = Constructor(0,0,List(pred))
-    val Zero = Constructor(0,1,List())
-    def Pred(succ: Term) = Selector(0,0,0,succ)
-  
-    def Cons(h: Term, t:Term) = Constructor(1,0,List(h,t))
-    val Nil = Constructor(1,1,List())
-    def Head(cons: Term) = Selector(1,0,0,cons)
-    def Tail(cons: Term) = Selector(1,0,1,cons)
-  
-    val sigSInt = Seq(Seq(0), Seq()) // Succ(SInt), Zero
-    val sigSIntDts = Seq(Seq(Zero), Seq())
-    val sigList = Seq(Seq(0,1), Seq()) // Cons(SInt, List), Nil
-    val sigListDts = Seq(Seq(Zero, Nil), Seq())
-    override val sig = Signature(Seq(sigSInt, sigList), Seq(sigSIntDts, sigListDts))
-  }
 
-  /* ===============
-   * Testing on simple finite signature
-   * =============== */
-
-  "Solver" should "return sat on empty constraints" in new SimpleFiniteSig {
+  "Solver" should "return sat on empty constraints" in new FiniteAndListSig {
     assertSat()
   }
-
-  it should "return sat on trivial constraints" in new SimpleFiniteSig {
-    // TODO: This case (any many other simple ones) should work without splitting as
-    //  soon as inequality detection has been improved
-//    override val expectSplitting = Some(false)
-    override val eqs = Seq((Variable(1), Variable(1)))
-    assertSat()
-  }
-
-  it should "return unsat on trivial inequality" in new SimpleFiniteSig {
-    override val ineqs = Seq((Variable(1), Variable(1)))
-    assertUnsatDueTo[InvalidEquality]()
-  }
-
-  it should "return sat on trivial unification" in new SimpleFiniteSig {
-    override val eqs = Seq((Variable(1), Fina))
-    assertSat()
-  }
-  it should "return sat on trivial multiple unification" in new SimpleFiniteSig {
-    override val eqs = Seq((Variable(1), Fina), (Variable(2), Finb))
-    assertSat()
-  }
-
-  it should "return sat on trivial equality of constructors" in new SimpleFiniteSig {
-    override val eqs = Seq((Finb, Finb))
-    assertSat()
-  }
-
-  it should "return unsat on trivially distinct constructors" in new SimpleFiniteSig {
-    override val eqs = Seq((Fina, Finb))
-    assertUnsatDueTo[EmptyLabelling]()
-  }
-
-  it should "return unsat on simply distinct constructors 1" in new SimpleFiniteSig {
-    override val eqs = Seq((Variable(1), Fina), (Variable(1), Finb) )
-    assertUnsatDueTo[EmptyLabelling]()
-  }
-  it should "return unsat on simply distinct constructors 2" in new SimpleFiniteSig {
-    override val eqs = Seq((Variable(1), Fina), (Finb, Variable(1)) )
-    assertUnsatDueTo[EmptyLabelling]()
-  }
-  it should "return unsat on simple inequality" in new SimpleFiniteSig {
-    override val eqs = Seq((Variable(1), Fina), (Variable(2), Fina) )
-    override val ineqs = Seq((Variable(1), Variable(2)))
-    assertUnsatDueTo[InvalidEquality]()
-  }
-
-  it should "return unsat on distinct constructors with variable equality" in new SimpleFiniteSig {
-    override val eqs = Seq(
-      (Variable(1), Fina),
-      (Variable(2), Finb),
-      (Variable(1), Variable(2))
-    )
-    assertUnsatDueTo[EmptyLabelling]()
-  }
-
-  it should "return sat on simple equality 1" in new SimpleFiniteSig {
-    override val eqs = Seq((Variable(1), Fina), (Variable(1), Fina) )
-    assertSat()
-  }
-  it should "return sat on simple equality 2" in new SimpleFiniteSig {
-    override val eqs = Seq(
-      (Variable(1), Fina),
-      (Variable(2), Fina),
-      (Variable(1), Variable(2))
-    )
-    assertSat()
-  }
-
-
-  /* ===============
-   * Testing on a List with simple finite constructors
-   * =============== */
 
   it should "return sat on equality of empty lists" in new FiniteAndListSig {
     override val eqs = Seq( (Nil, Nil) )
@@ -280,15 +184,5 @@ class AdtSolverSpec extends FlatSpec with BeforeAndAfter with AdtSolverSpecHelpe
 
   // TODO: Test case to check Instantiate 2 rule
 
-
-  it should "return sat on our sample for branching" in new SIntAndIntListSig {
-    //solver.debugOn
-    val x = Variable(1)
-    val m = Variable(2)
-    val y = Variable(3)
-    override val eqs = Seq( (x, Cons(m, y)) )
-    override val ineqs = Seq( (m, Zero), (Head(y), Zero) )
-    assertSat()
-  }
 
 }

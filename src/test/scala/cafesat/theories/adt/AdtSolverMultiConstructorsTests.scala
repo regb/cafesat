@@ -47,6 +47,14 @@ class AdtSolverMultiConstructorsTests extends FlatSpec with AdtSolverSpecHelpers
     assertUnsatDueTo[InvalidEquality]()
   }
 
+  it should "return sat when different constructors are used differently" in new FiniteAndMultiCtors {
+    val x = Variable(1)
+    val y = Variable(2)
+    val z = Variable(3)
+    override val eqs = Seq((C1(x), y), (C2(x), z))
+    assertSat()
+  }
+
   it should "return unsat when different constructors" in new FiniteAndMultiCtors {
     val x = Variable(1)
     val y = Variable(2)
@@ -61,6 +69,7 @@ class AdtSolverMultiConstructorsTests extends FlatSpec with AdtSolverSpecHelpers
   //due to selectors being partial functions, but being extended to a total function via
   //a distinguished term, which means that it is ok to apply to wrong constructors.
   it should "return sat when x is used with different selectors" in new FiniteAndMultiCtors {
+    override val expectSplitting = Some(true)
     val x = Variable(1)
     val y = Variable(2)
     val z = Variable(3)
@@ -70,6 +79,7 @@ class AdtSolverMultiConstructorsTests extends FlatSpec with AdtSolverSpecHelpers
 
   //still sat, for similar reason as above
   it should "return sat when x is used with different selectors and tester forces one" in new FiniteAndMultiCtors {
+    override val expectSplitting = Some(true)
     val x = Variable(1)
     val y = Variable(2)
     val z = Variable(3)
@@ -79,6 +89,7 @@ class AdtSolverMultiConstructorsTests extends FlatSpec with AdtSolverSpecHelpers
   }
 
   it should "return sat when x is used with different selectors and one is different from distinguished term" in new FiniteAndMultiCtors {
+    override val expectSplitting = Some(true)
     val x = Variable(1)
     val y = Variable(2)
     val z = Variable(3)

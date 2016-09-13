@@ -49,6 +49,25 @@ case class Instance(sig: Signature,
 //TODO: maybe add a ConstructorSig(sorts: Seq[SortRef]) and use it in Signature?
 //      case class Signature(sorts: Seq[Seq[ConstructorSig]], ...)
 
+/*
+ * designatedTerms (also called distinguished terms), are used when a selector is applied
+ * to a wrong constructor (with correct sort, but wrong constructor). For example:
+ *   type A = A1 (s1: Nat) | A2 (s2: Nat)
+ *   s1(x) = y && s2(x) = z
+ * the above is a valid input for the solver (but probably not in a programming language
+ * as selectors would not type check unless we know that x is of the specific constructor
+ * type), and will actually be SAT as the solver will choose to use the distinguished term
+ * for one of the selector (if x is decided to be A1, then we will use designated term for
+ * selector s2 when applied to x). Adding further constraint to prevent values from taking
+ * one of the designated terms values would make this unsat as well. It means, it should
+ * be possible to extend the procedure to always return unsat on non well-typed formulas
+ * like the above.
+ *
+ * Note that this is very different from a sort error, where we have type A, and type B,
+ * and x is used with a selector in type A and in type B, which is not supported by
+ * the procedure and should be caught statically (usually, variable have a declared sort).
+ */
+
 // Signature =^ seq of sorts, sort =^ seq of ctors, ctor =^ seq of arg. sorts
 case class Signature(sorts: Seq[Seq[Seq[SortRef]]], designatedTerms: Seq[Seq[Seq[Term]]]) {
   val sortRefs: Seq[SortRef] = (0 until sorts.size).toSeq
