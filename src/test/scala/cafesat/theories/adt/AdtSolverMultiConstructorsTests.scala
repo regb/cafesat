@@ -15,6 +15,9 @@ class AdtSolverMultiConstructorsTests extends FlatSpec with AdtSolverSpecHelpers
 
     def S1(c1: Term) = Selector(1,0,0,c1)
     def S2(c2: Term) = Selector(1,1,0,c2)
+
+    def IsC1(t: Term) = Tester(1,0,t)
+    def IsC2(t: Term) = Tester(1,1,t)
   
     val sigMulti = Seq(Seq(0), Seq(0)) // C1(Fin), C2(Fin)
     val sigMultiDts = Seq(Seq(Fina), Seq(Finb))
@@ -84,7 +87,7 @@ class AdtSolverMultiConstructorsTests extends FlatSpec with AdtSolverSpecHelpers
     val y = Variable(2)
     val z = Variable(3)
     override val eqs = Seq((S1(x), y), (S2(x), z))
-    override val tests = Seq( Tester(1,0,x) )
+    override val tests = Seq( IsC1(x) )
     assertSat()
   }
 
@@ -105,7 +108,26 @@ class AdtSolverMultiConstructorsTests extends FlatSpec with AdtSolverSpecHelpers
     val y = Variable(2)
     val z = Variable(3)
     override val eqs = Seq((S1(x), y), (S2(x), z), (z, Fina))
-    override val tests = Seq( Tester(1,0,x) )
+    override val tests = Seq( IsC1(x) )
     assertUnsat()
   }
+
+  it should "return sat when an equivalent variable is used with incompatible selectors" in new FiniteAndMultiCtors {
+    val x = Variable(1)
+    val y = Variable(2)
+    val z = Variable(3)
+    val z2 = Variable(4)
+    override val eqs = Seq((S1(z), x), (S2(z2), y), (z, z2))
+    assertSat()
+  }
+  it should "return unsat when an equivalent variable is used with incompatible selectors and forced different from distinguished term" in new FiniteAndMultiCtors {
+    val x = Variable(1)
+    val y = Variable(2)
+    val z = Variable(3)
+    val z2 = Variable(4)
+    override val eqs = Seq((S1(z), x), (S2(z2), y), (z, z2), (y, Fina))
+    override val tests = Seq(IsC1(z))
+    assertUnsat()
+  }
+
 }

@@ -43,4 +43,44 @@ class AdtSolverIntsTests extends FlatSpec with AdtSolverSpecHelpers {
     override val eqs = Seq( (m, Succ(Succ(n))), (m, Succ(n)) )
     assertUnsatDueTo[Cyclic]()
   }
+
+  it should "return sat with simple but deep term equality" in new SIntSig {
+    val x = Variable(1)
+    val y = Variable(2)
+
+    override val eqs = Seq((Succ(Succ(Succ(Succ(x)))), Succ(Succ(Succ(Succ(y))))), (x, y))
+    assertSat()
+  }
+  it should "return unsat with deep congruence of different elements" in new SIntSig {
+    val x = Variable(1)
+    val y = Variable(2)
+
+    override val eqs = Seq((Succ(Succ(Succ(Succ(x)))), Succ(Succ(Succ(Succ(y))))))
+    override val ineqs = Seq((x, y))
+    assertUnsat()
+  }
+  it should "return sat with deep term equality split accross several parts" in new SIntSig {
+    val x = Variable(1)
+    val y = Variable(2)
+    val z = Variable(3)
+
+    override val eqs = Seq(
+      (Succ(Succ(Succ(Succ(x)))), Succ(Succ(y))),
+      (y, Succ(Succ(z))),
+      (x, z)
+    )
+    assertSat()
+  }
+  it should "return unsat with deep term equality split accross several parts with base distinct" in new SIntSig {
+    val x = Variable(1)
+    val y = Variable(2)
+    val z = Variable(3)
+
+    override val eqs = Seq(
+      (Succ(Succ(Succ(Succ(x)))), Succ(Succ(y))),
+      (y, Succ(Succ(z)))
+    )
+    override val ineqs = Seq((x, z))
+    assertUnsat()
+  }
 }
