@@ -197,4 +197,27 @@ class AdtSolverListsTests extends FlatSpec with BeforeAndAfter with AdtSolverSpe
     assertUnsat()
   }
 
+  it should "return unsat on inconsistent inequality between two lists when one is defined implicitly by its selectors" in new FiniteAndListSig {
+    val x = Variable(1)
+    val y = Variable(2)
+    val z = Variable(3)
+    val w = Variable(4)
+    override val eqs = Seq((Cons(x,y), z), (Head(w), x), (Tail(w), y))
+    override val ineqs = Seq((w, z))
+    //TODO: should not need the tests, but they work while the test crashes without
+    //override val tests = Seq(IsCons(w)) 
+    assertUnsat()
+  }
+
+  it should "return unsat on two implicit cons defined with selectors with an inconsistent inequality" in new FiniteAndListSig {
+    val x = Variable(1)
+    val y = Variable(2)
+    val z = Variable(3)
+    val v = Variable(4)
+    val w = Variable(5)
+    override val eqs = Seq((Cons(x,y), z), (Head(w), x), (Tail(w), y), (v, w))
+    override val ineqs = Seq((y, Tail(v)))
+    assertUnsat()
+  }
+
 }

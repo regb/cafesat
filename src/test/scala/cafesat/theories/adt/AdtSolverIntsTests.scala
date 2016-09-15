@@ -83,4 +83,18 @@ class AdtSolverIntsTests extends FlatSpec with AdtSolverSpecHelpers {
     override val ineqs = Seq((x, z))
     assertUnsat()
   }
+
+  it should "return unsat with indirect cycle through many successors" in new SIntSig {
+    val x1 = Variable(1)
+    val x2 = Variable(1)
+    val x3 = Variable(1)
+    val x4 = Variable(1)
+    val x5 = Variable(1)
+    val y = Variable(2)
+    val z = Variable(3)
+
+    override val eqs = Seq((Succ(x1), x2), (Succ(x2), x3), (Succ(x3), x4), (Succ(x4), x5), (x5, x1))
+    assertUnsatDueTo[Cyclic]()
+  }
+
 }
