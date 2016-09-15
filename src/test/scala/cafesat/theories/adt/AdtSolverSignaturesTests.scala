@@ -83,4 +83,16 @@ class AdtSolverSignaturesTests extends FlatSpec {
     assert(!Signature.isWellFounded(sigCycle4))
   }
 
+  it should "not be a finite sort" in {
+    val sigNat = Seq(Seq(Seq(0), Seq()))
+    val sig1 = Signature(sigNat, Seq(Seq(Seq(Constructor(0,1,List())), Seq())))
+    assert(!sig1.isFiniteSort(0))
+
+    val sigList = Seq(Seq(Seq(), Seq(), Seq()), Seq(Seq(0, 1), Seq()))
+    val sig2 = Signature(sigList, Seq(Seq(Seq(), Seq(), Seq()),
+                                      Seq(Seq(Constructor(0,0,List()), Constructor(1,1,List())), Seq())))
+    assert(sig2.isFiniteSort(0))
+    assert(!sig2.isFiniteSort(1))
+  }
+
 }
