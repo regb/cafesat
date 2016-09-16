@@ -84,5 +84,38 @@ class AdtSolverNullConstructorsTests extends FlatSpec with AdtSolverSpecHelpers 
     assertSat()
   }
 
+  trait SingleConstructorSig extends FreshSolver {
+    val Fina = Constructor(0,0,List())
+  
+    val sigFin = Seq(Seq())
+    val sigFinDts = Seq(Seq())
+    val sig = Signature(Seq(sigFin), Seq(sigFinDts))
+  }
+
+  it should "return unsat with 2 variables ineqs on a sort with a single value" in new SingleConstructorSig {
+    val x = Variable(1)
+    val y = Variable(2)
+    override val ineqs = Seq((x,y))
+    assertUnsat()
+  }
+  it should "return sat with 2 variables eqs on a sort with a single value" in new SingleConstructorSig {
+    val x = Variable(1)
+    val y = Variable(2)
+    override val eqs = Seq((x,y))
+    assertSat()
+  }
+  it should "return unsat with 3 distinct variables on a sort with two values" in new SimpleFiniteSig {
+    val x = Variable(1)
+    val y = Variable(2)
+    val z = Variable(2)
+    override val ineqs = Seq((x,y), (y,z), (x, z))
+    assertUnsat()
+  }
+  it should "return sat with 2 distinct variables on a sort with two values" in new SimpleFiniteSig {
+    val x = Variable(1)
+    val y = Variable(2)
+    override val ineqs = Seq((x,y))
+    assertSat()
+  }
 
 }
