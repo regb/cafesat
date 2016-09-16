@@ -220,4 +220,13 @@ class AdtSolverListsTests extends FlatSpec with BeforeAndAfter with AdtSolverSpe
     assertUnsat()
   }
 
+  it should "return unsat on a cycle with indirect equality between the lists" in new FiniteAndListSig {
+    val x = Variable(1)
+    val y = Variable(2)
+    val w = Variable(3)
+    override val eqs = Seq((Cons(x,y), w), (Tail(w), Tail(y)))
+    override val ineqs = Seq((y, Nil))
+    assertUnsat()
+  }
+
 }
