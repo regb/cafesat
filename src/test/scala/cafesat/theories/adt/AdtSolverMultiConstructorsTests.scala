@@ -121,7 +121,6 @@ class AdtSolverMultiConstructorsTests extends FlatSpec with AdtSolverSpecHelpers
     assertSat()
   }
   it should "return unsat when an equivalent variable is used with incompatible selectors and forced different from distinguished term" in new FiniteAndMultiCtors {
-    solver.debug = true
     val x = Variable(1)
     val y = Variable(2)
     val z = Variable(3)

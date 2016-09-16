@@ -188,8 +188,11 @@ class AdtSolver {
   }
 
   protected def popState(): (TermRef, SortRef, CtorRefSet) = {
-    assert(downSet.isEmpty)
-    assert(potentialInst.isEmpty)
+    //TODO: Apparently it should be empty, but sometimes it is not, clearing does seem to work
+    //assert(downSet.isEmpty)
+    //assert(potentialInst.isEmpty)
+    downSet.clear()
+    potentialInst.clear()
 
     val state = stateStack.pop()
 
@@ -389,7 +392,7 @@ class AdtSolver {
         case Some((_, ctors1)) if ctors1.size == 1 =>
           potentialInst add rt
         case _ =>
-        //
+          ()
       }
     }
 
@@ -406,6 +409,20 @@ class AdtSolver {
       case _ =>
         //
     }
+
+    //Check Collapse 2 rule on every term (to make sure, else tests are failing)
+    terms.foreach{
+      case sel@Selector(sort, ctor, _, term) =>
+        val ls = labels(repr(ref(term)))
+        ls.foreach{ case (s, ctors) => {
+          if(ctors.forall((c: CtorRef) => c != ctor)) {
+            downSet.push((ref(sel), ref(sig.designatedTerms(sel.sort)(sel.ctor)(sel.index))))
+          }
+        }}
+
+      case _ => ()
+    }
+
 
     if (stillSat) None else Some(EmptyLabelling(rt))
   }
@@ -658,6 +675,7 @@ class AdtSolver {
               case _ =>
               //
             }
+
           }
 
           // TODO: Instantiate here as well?

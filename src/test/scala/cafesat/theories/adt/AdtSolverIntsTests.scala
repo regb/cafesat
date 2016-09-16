@@ -11,6 +11,8 @@ class AdtSolverIntsTests extends FlatSpec with AdtSolverSpecHelpers {
     def Succ(pred: Term) = Constructor(0,0,List(pred))
     val Zero = Constructor(0,1,List())
     def Pred(succ: Term) = Selector(0,0,0,succ)
+
+    def IsSucc(t: Term) = Tester(0,0,t)
   
     val sigSInt = Seq(Seq(0), Seq()) // Succ(SInt), Zero
     val sigSIntDts = Seq(Seq(Zero), Seq())
@@ -97,4 +99,31 @@ class AdtSolverIntsTests extends FlatSpec with AdtSolverSpecHelpers {
     assertUnsatDueTo[Cyclic]()
   }
 
+  //this one is weird, but is sat due to the interpretation of the selector pred on zero
+  it should "return sat when y is successor of x but both pred can be equals" in new SIntSig {
+    val x = Variable(1)
+    val y = Variable(2)
+
+    override val eqs = Seq((Succ(x), y), (Pred(y), Pred(x)))
+    assertSat()
+  }
+
+  it should "return unsat when y is successor of an isSucc and pred are equals" in new SIntSig {
+    val x = Variable(1)
+    val y = Variable(2)
+
+    override val eqs = Seq((Succ(x), y), (Pred(y), Pred(x)))
+    override val tests = Seq(IsSucc(x))
+    assertUnsat()
+  }
+
+  it should "return unsat when y is successor of x non-zero and pred are equals" in new SIntSig {
+    solver.debug = true
+    val x = Variable(1)
+    val y = Variable(2)
+
+    override val eqs = Seq((Succ(x), y), (Pred(y), Pred(x)))
+    override val ineqs = Seq((x, Zero))
+    assertUnsat()
+  }
 }
