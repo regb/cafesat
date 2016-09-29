@@ -8,6 +8,8 @@ import org.scalatest.FunSuite
 
 class IncrementalSuite extends FunSuite {
 
+  private implicit val emptyContext = Context(util.SilentLogger)
+
   private val a = new Literal(0, true)
   private val na = new Literal(0, false)
   private val b = new Literal(1, true)

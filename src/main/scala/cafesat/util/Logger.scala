@@ -85,10 +85,28 @@ abstract class Logger {
 
 }
 
+object SilentLogger extends Logger {
+  //not sure, but it seems redundant ot override both output and log level
+  //to state the same thing
+
+  override def output(msg: String): Unit = {}
+
+  override val logLevel: Logger.LogLevel = Logger.NoLogging
+}
+
+//The usual policy is to use the standard error to log
+//the information
 abstract class StdErrLogger extends Logger {
-  override def output(msg: String) : Unit = {
+  override def output(msg: String): Unit = {
     Console.err.println(msg)
   }
+}
+
+object ErrorStdErrLogger extends StdErrLogger {
+
+  import Logger._
+
+  override val logLevel: LogLevel = Error
 }
 
 object DefaultStdErrLogger extends StdErrLogger {
@@ -96,6 +114,13 @@ object DefaultStdErrLogger extends StdErrLogger {
   import Logger._
 
   override val logLevel: LogLevel = Warning
+}
+
+object InfoStdErrLogger extends StdErrLogger {
+
+  import Logger._
+
+  override val logLevel: LogLevel = Info
 }
 
 object VerboseStdErrLogger extends StdErrLogger {
