@@ -28,21 +28,6 @@ class Tests extends FunSuite with Matchers {
     asFile.listFiles().filter(f => filter(f.getPath()))
   }
 
-//  def mkTest(file: File)(block: => Unit) = {
-//
-//    if(isZ3Available) {
-//      test("SMTLIB benchmark: " + file.getPath) {
-//        (new ScriptRunner).run(file)
-//      }
-//    }
-//
-//    if(isCVC4Available) {
-//
-//    }
-//
-//  }
-//
-
   filesInResourceDir("regression/dimacs/sat", _.endsWith(".cnf")).foreach(file => {
     test("Checking SAT solver on sat instance: " + file.getPath) {
       val res = runSatSolver(file)
@@ -95,25 +80,5 @@ class Tests extends FunSuite with Matchers {
     val result = s.solve(dpllt.BooleanTheory.makeSolver(cnf))
     result
   }
-
-
-  //TODO: check incrementally the solver
-  //  var i = 0
-  //  var sResult: Result = Unknown
-  //  for(c <- satInstance) {
-  //    s.addClause(c)
-  //    sResult = s.solve()
-  //    i += 1
-
-  //    // reference solver (all clauses added immediately)
-  //    val r = new Solver(nbVars)
-  //    satInstance.take(i).foreach(r.addClause(_))
-  //    val rResult = r.solve()
-  //    assert(sResult.getClass === rResult.getClass)
-  //  }
-
-  //  assert(sResult === Unsatisfiable)
-  //}
-
 
 }
