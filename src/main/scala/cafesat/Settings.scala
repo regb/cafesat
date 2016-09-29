@@ -16,7 +16,7 @@ object Settings {
   var engine: Engine = DPLLT
 
   /*
-   * The idea of the Engine is that there are alternative ways to integrate theory solver
+   * The idea of the Engine is that there are several ways to integrate theory solvers
    * into a propositional search, the DPLLT is to generalize the SAT solver to plug-in the
    * theory solvers, while the BlackBox approach would be to keep the SAT solver independent
    * and use a different communication mecanisms (some external mapping between varID and literal
