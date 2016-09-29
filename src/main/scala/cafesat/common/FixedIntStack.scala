@@ -6,6 +6,13 @@ package cafesat.common
   * in a SAT solver. Though it can be used to represent a stack of
   * Int with a fixed maximum size.
   *
+  * The interface should only export efficient operations, to avoid
+  * people accidently using operations (such as map or takeWhile) that
+  * are conveninent but not necessarly very fast. The rational is mostly
+  * to avoid overhead (creating a closure, dynamic allocation, etc), if an
+  * operation is O(n) (such as the contains operator) it is fine to be
+  * provided as this does not involve extra overhead.
+  *
   * @constructor Initializes an empty stack with space to grow up to maxSize
   * @param maxSize the maximum size the stack can grow. Should be positive
   * @throws IllegalArgumentException if maxSize < 0

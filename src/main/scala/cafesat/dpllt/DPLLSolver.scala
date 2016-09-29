@@ -1,10 +1,19 @@
 package cafesat
-package sat
+package dpllt
 
-import common._
+import sat.Solver.Results._
+import common.FixedIntStack
+import common.FixedIntDoublePriorityQueue
+import sat.Vector
+
 import util.Logger
 
-object Solver {
+/*
+ * TODO: what should we do with multiple copy of the same literal with different id ?
+ *       Can break communication with theory solver with literals mapping
+ */
+object DPLLSolver {
+
   /* The results, unknown means timeout */
   object Results {
     sealed trait Result
@@ -13,31 +22,6 @@ object Solver {
     case object Unknown extends Result
   }
 
-  //ignore size 1 for watched literal, they are never kept in the db
-  class Clause(val lits: Array[Int]) {
-    var activity: Double = 0d
-    var locked = false
-    def this(listLits: Set[Literal]) = this(listLits.map(lit => 2*lit.getID + (1 - lit.polInt)).toArray)
-    val size = lits.size
-
-    override def toString = lits.map(lit => (if(lit % 2 == 0) "" else "-") + (lit >> 1)).mkString("[", ", ", "]")
-  }
-  
-}
-
-class Solver(nbVars: Int)(implicit context: Context) {
-
-  private val logger = context.logger
-
-  private[this] implicit val tag = new Logger.Tag("native-sat")
-
-  import Solver._
-
-  /*
-    This is a SAT solver, and I am trying to make it efficient, so don't expect nice functional code
-    using immutable data and everything, this will be pure procedural code with many gloabl variables.
-  */
-
   //Enumeration for the different status of the algorithm
   private sealed trait Status
   private case object Satisfiable extends Status
@@ -45,6 +29,26 @@ class Solver(nbVars: Int)(implicit context: Context) {
   private case object Conflict extends Status
   private case object Unknown extends Status
   private case object Timeout extends Status
+}
+
+//TODO: nbVars should be nbLits
+class DPLLSolver[T <: TheoryComponent](nbVars: Int, val theory: T)(implicit val context: Context) {
+
+  import theory.{Solver => TheorySolver, Literal}
+
+  implicit val ev = theory.literalClassTag
+
+  private val logger = context.logger
+
+  private[this] implicit val tag = new Logger.Tag("dpllt")
+
+  import DPLLSolver._
+
+  /*
+   * Not for the faint of heart.
+   * If you like Scala or functional programming, you may want to skip the rest of this file and
+   * take it as a black box.
+   */
 
   private[this] var nbConflicts = 0
   private[this] var nbDecisions = 0
@@ -57,10 +61,16 @@ class Solver(nbVars: Int)(implicit context: Context) {
   private[this] var nbSolveCalls = 0
          
   private[this] var decisionLevel = 0
-  private[this] var trail: FixedIntStack = new FixedIntStack(nbVars) //store literals, but only one polarity at the same time, so nbVar size is enough
+  private[this] var trail: FixedIntStack = new FixedIntStack(nbVars) //store literals, but only of one unique polarity per literal, so nbVar size is enough //TODO: could it be that we need nbVars + 1 ?
   private[this] var qHead = 0
+  private[this] var theoryHead = 0
+
+  //reasons contains the clause explaining why bcp propagated a certain propositional variable
+  //it could be null for either of three reasons: (1) not yet assigned (2) decision variable (3) theory propagation
   private[this] var reasons: Array[Clause] = new Array(nbVars)
+  private[this] var theoryPropagated: Array[Boolean] = new Array(nbVars)
   private[this] var levels: Array[Int] = Array.fill(nbVars)(-1)
+  //model for each literal id: -1 is unknown, 0 is false, 1 is true
   private[this] var model: Array[Int] = Array.fill(nbVars)(-1)
   private[this] var watched: Array[Vector[Clause]] = Array.fill(2*nbVars)(new Vector(20))
   private[this] var incrementallyAddedClauses: List[Clause] = Nil
@@ -80,11 +90,29 @@ class Solver(nbVars: Int)(implicit context: Context) {
   private[this] var conflict: Clause = null
   private[this] var assumptions: Array[Int] = null
 
+  private[this] var literals: Array[Literal] = new Array(2*nbVars)
+
   private[this] val conflictAnalysisStopWatch = StopWatch("backtrack.conflictanalysis")
   private[this] val find1UIPStopWatch = StopWatch("backtrack.conflictanalysis.find1uip")
   private[this] val clauseMinimizationStopWatch = StopWatch("backtrack.conflictanalysis.clauseminimization")
+  private[this] val explanationStopwatch = StopWatch("explanation")
+  private[this] val setTrueStopwatch = StopWatch("setTrue")
+  private[this] val tBacktrackStopwatch = StopWatch("t-backtrack")
 
-  def resetSolver() {
+  var tSolver: theory.Solver = _
+
+  //ignore size 1 for watched literal, they are never kept in the db
+  private class Clause(val lits: Array[Int]) {
+    var activity: Double = 0d
+    var locked = false
+    def this(listLits: Set[Literal]) = this(listLits.map(lit => 2*lit.id + lit.polInt).toArray)
+    val size = lits.size
+
+    override def toString = lits.map(lit => (if(lit % 2 == 0) "" else "-") + (lit >> 1)).mkString("[", ", ", "]")
+  }
+
+
+  private def resetSolver(): Unit = {
     nbConflicts = 0
     nbDecisions = 0
     nbPropagations = 0
@@ -95,6 +123,7 @@ class Solver(nbVars: Int)(implicit context: Context) {
     decisionLevel = 0
     trail = new FixedIntStack(nbVars) //store literals, but only one polarity at the same time, so nbVar size is enough
     qHead = 0
+    theoryHead = 0
     reasons = new Array(nbVars)
     levels = Array.fill(nbVars)(-1)
     model = Array.fill(nbVars)(-1)
@@ -105,23 +134,27 @@ class Solver(nbVars: Int)(implicit context: Context) {
     restartInterval = Settings.restartInterval
     nextRestart = restartInterval
 
+    literals = new Array(2*nbVars)
+
     conflictAnalysisStopWatch.reset()
     find1UIPStopWatch.reset()
     clauseMinimizationStopWatch.reset()
   }
 
-  def initClauses(clauses: List[Clause]) {
+  private def initClauses(clauses: List[Clause]): Unit = {
     var newClauses: List[Clause] = Nil
     clauses.foreach(cl => {
       val litsUnique = cl.lits.toSet
       if(litsUnique.size == 1) {
         val id = litsUnique.head >> 1
-        if(model(id) == -1)
+        if(model(id) == -1) {
+          logger.debug("Simplifying clause of size 1: " + literals(litsUnique.head))
           enqueueLiteral(litsUnique.head)
-        else if(model(id) == (litsUnique.head & 1))
+        } else if(model(id) != (litsUnique.head & 1)) {
+          logger.debug("Detecting conflicting clause of size 1: " + literals(litsUnique.head))
           status = Unsatisfiable
-      }
-      else if(!litsUnique.exists(l1 => litsUnique.count(l2 => (l2 >> 1) == (l1 >> 1)) > 1)) {
+        }
+      } else if(!litsUnique.exists(l1 => litsUnique.count(l2 => (l2 >> 1) == (l1 >> 1)) > 1)) {
         val newLits = new Clause(litsUnique.toArray)
         newClauses ::= newLits
       }
@@ -129,15 +162,22 @@ class Solver(nbVars: Int)(implicit context: Context) {
     cnfFormula = new CNFFormula(newClauses, nbVars)
     for(clause <- newClauses)
       recordClause(clause)
+
+    //tSolver = theory.makeSolver(cnfFormula.originalClauses.map(clause => clause.lits.map(literals(_)).toSet).toSet)
   }
 
 
   def addClause(lits: Set[Literal]) = {
     incrementallyAddedClauses ::= new Clause(lits)
+    for(lit <- lits) {
+      literals(2*lit.id + 0) = lit.pos.neg
+      literals(2*lit.id + 1) = lit.pos
+    }
   }
 
-  def solve(assumps: Array[Literal] = Array.empty[Literal]): Results.Result = {
-    logger.info("Running native SAT solver solve search...")
+  def solve(solver: TheorySolver, assumps: Array[Literal] = Array.empty[Literal]): Results.Result = {
+    logger.info("Running DPLL(T) solve procedure...")
+    tSolver = solver
     nbSolveCalls += 1
 
     if(nbSolveCalls > 1) {
@@ -146,8 +186,14 @@ class Solver(nbVars: Int)(implicit context: Context) {
     }
     initClauses(this.learntClauses ::: incrementallyAddedClauses)
 
-    assumptions = assumps.map((lit: Literal) => (lit.getID << 1) + lit.polInt ^ 1) // TODO correct literal to int conversion
+    assumptions = assumps.map((lit: Literal) => (lit.id << 1) + lit.polInt ^ 1) // TODO correct literal to int conversion
 
+    logger.debug("CNF formula: " +
+      cnfFormula.originalClauses.map(clause => 
+        clause.lits.map(literals(_)).mkString("[", ", ", "]")
+      ).mkString("{\n\t", "\n\t", "}"))
+    logger.debug("Assumptions: " + assumptions.map(literals(_)).mkString("[", ",", "]"))
+    logger.trace("Literals array: " + literals.mkString("{\n\t", "\n\t", "}"))
     search()
   }
   
@@ -170,7 +216,9 @@ class Solver(nbVars: Int)(implicit context: Context) {
       //assertWatchedInvariant
       //assertTrailInvariant
       //MAIN LOOP
+      var fileCounter = 0
       while(status == Unknown) {
+
         val startTime = System.currentTimeMillis
         //assertWatchedInvariant
         //assertTrailInvariant
@@ -187,6 +235,7 @@ class Solver(nbVars: Int)(implicit context: Context) {
           }
 
           if(status == Conflict) {
+            logger.debug("Conflict detected at level " + decisionLevel)
             backtrackStopWatch.time {
               backtrack()
             }
@@ -206,8 +255,8 @@ class Solver(nbVars: Int)(implicit context: Context) {
       println("Propagations: " + nbPropagations + " ( " + (nbPropagations/deduceStopWatch.seconds).toInt + " / sec)")
       println("Restarts: " + nbRestarts)
       println("Learned Literals: " + nbLearntLiteralTotal + " (" + nbLearntClauseTotal + " clauses) --- " + nbLearntLiteralTotal.toDouble/nbLearntClauseTotal.toDouble + " per clause")
-      println("Removed Literals: " + nbRemovedLiteral + "(" + nbRemovedClauses + " clauses) --- " + nbRemovedLiteral.toDouble/nbRemovedClauses.toDouble + " per clause")
-      println("Active Literals: " + (nbLearntLiteralTotal - nbRemovedLiteral) + "(" + (nbLearntClauseTotal - nbRemovedClauses) + ") --- " + (nbLearntLiteralTotal - nbRemovedLiteral).toDouble/(nbLearntClauseTotal-nbRemovedClauses).toDouble + " per clause")
+      println("Removed Literals: " + nbRemovedLiteral + " (" + nbRemovedClauses + " clauses) --- " + nbRemovedLiteral.toDouble/nbRemovedClauses.toDouble + " per clause")
+      println("Active Literals: " + (nbLearntLiteralTotal - nbRemovedLiteral) + " (" + (nbLearntClauseTotal - nbRemovedClauses) + ") --- " + (nbLearntLiteralTotal - nbRemovedLiteral).toDouble/(nbLearntClauseTotal-nbRemovedClauses).toDouble + " per clause")
 
       println("Time spend in:\n")
       println("  toplevelloop:         " + topLevelStopWatch.seconds + " sec")
@@ -217,6 +266,9 @@ class Solver(nbVars: Int)(implicit context: Context) {
       println("      conflictanalysis: " + conflictAnalysisStopWatch.seconds + " sec")
       println("        clausemin:      " + clauseMinimizationStopWatch.seconds + " sec")
       println("        find1uip:       " + find1UIPStopWatch.seconds + " sec")
+      println("  tSolver-setTrue:      " + setTrueStopwatch.seconds + " sec")
+      println("  tSolver-explain:      " + explanationStopwatch.seconds + " sec")
+      println("  tSolver-backtrack:    " + tBacktrackStopwatch.seconds + " sec")
     }
 
     logger.info("Search finished, status: " + status)
@@ -224,14 +276,27 @@ class Solver(nbVars: Int)(implicit context: Context) {
       case Unknown | Conflict => sys.error("unexpected")
       case Timeout => Results.Unknown
       case Unsatisfiable => Results.Unsatisfiable
-      case Satisfiable => Results.Satisfiable(model.map(pol => pol == 1))
+      case Satisfiable => {
+        assert(model.forall(pol => pol == 1 || pol == 0))
+        assert((cnfFormula.originalClauses ++ cnfFormula.learntClauses).forall(clause => clause.lits.exists(lit => isSat(lit))))
+        assert(model.zipWithIndex.forall{ case (pol, id) => {
+          val lit = literals(2*id + pol)
+          tSolver.isTrue(lit)
+        }})
+        logger.debug("Model: " + model.zipWithIndex.map{ case (pol, id) => literals(2*id + pol) }.mkString("[\n\t", ", ", "]") )
+        Results.Satisfiable(model.map(pol => pol == 1))
+      }
     }
   
   }
 
   private[this] def conflictAnalysis: Clause = {
+    implicit val tag = new Logger.Tag("Conflict Analysis")
+    logger.debug("Conflict analysis: " + conflict.lits.map(literals(_)).mkString("[", ", ", "]"))
     assert(conflict != null)
-    //assert(seen.forall(b => !b))
+    assert(conflict.lits.forall(lit => isUnsat(lit)))
+    assert(conflict.lits.exists(lit => levels(lit >> 1) == decisionLevel))
+    assert(seen.forall(b => !b))
 
     //the algorithm augment the cut closest to the conflict node successively by doing
     //a BFS while only searching through the nodes of the current decision level
@@ -245,8 +310,12 @@ class Solver(nbVars: Int)(implicit context: Context) {
     conflict = null
 
     //find 1-UIP
+    logger.trace("Searching 1UIP...")
     find1UIPStopWatch.time {
       do {
+        assert(confl != null)
+        logger.trace("Current conflict reason: " + confl.lits.map(literals(_)).mkString("[", ", ", "]"))
+
         if(p != -1)
           assert(p == (confl.lits(0)))
         cnfFormula.incVSIDSClause(confl)
@@ -254,40 +323,66 @@ class Solver(nbVars: Int)(implicit context: Context) {
         val lits = confl.lits
         var i = if(p == -1) 0 else 1
         while(i < lits.size) {
-          //assert(isUnsat(lits(i)))
           val id = lits(i) >> 1
           val lvl = levels(id)
+          logger.trace("Considering literal [" + literals(lits(i)) + "] at level " + lvl + " with seen: " + seen(id))
           if(!seen(id) && lvl > 0) {
             seen(id) = true
             if(lvl == decisionLevel)
               c += 1
-            else
+            else {
+              logger.trace("Adding to learnt clause: " + literals(lits(i)))
               learntClause ::= lits(i)
+            }
           }
           i += 1
         }
 
-        //assert(learntClause.forall(lit => levels(lit >> 1) != decisionLevel))
+        assert(learntClause.forall(lit => levels(lit >> 1) != decisionLevel))
 
         do {
           trailIndex -= 1
           p = trail(trailIndex)
         } while(!seen(p>>1))
+        assert(isSat(p))
+        logger.trace("current UIP: " + literals(p))
 
         confl = reasons(p>>1)
         c = c - 1
         seen(p>>1) = false
+        logger.trace("current counter c: " + c)
 
-        //if(confl != null) {
-        //  assert(confl.lits(0) >> 1 == p)
-        //  assert(isSat(confl.lits(0)))
-        //  assert(confl.lits.tail.forall(lit => isUnsat(lit)))
-        //}
+        if(confl == null && theoryPropagated(p>>1)) { //conflict from theory propagation
+          val tLit = literals(p)
+          logger.debug("Computing theory explanation of literal: " + tLit)
+          val expl = tSolver.explanation(tLit)
+          assert(expl.forall(lit => tSolver.isTrue(lit)))
+          assert(expl.forall(lit => { val realLit = literals(lit.id*2 + lit.polInt); realLit.id == lit.id && realLit.polInt == lit.polInt }))
+          assert({ //make sure no cycle
+            //val prefixTrail: Seq[Int] = trail.stack.takeWhile(_ != p)
+            val prefixTrail: Seq[Int] = for(i <- 0 until trailIndex) yield trail(i)
+            expl.forall(lit => if(!prefixTrail.contains(2*lit.id + lit.polInt)) {
+              logger.debug(prefixTrail.map(l => "id: " + (l>>1) + ", polInt: " + (l&1) + ", lit: " + literals(l)).mkString("[", "\n", "]"))
+              logger.error("literal [" + lit + ", id: " + lit.id + ", pol: " + lit.polInt + "] from theory explanation is not in prefix of trail")
+              false
+            } else true)
+          })
+          assert(expl.forall(lit => isSat(2*lit.id + lit.polInt)))
+          confl = new Clause(p +: expl.map(l => 2*l.id + (1 - l.polInt)).toArray)
+        }
+        if(confl != null) {
+          assert(confl.lits(0) == p)
+          assert(isSat(confl.lits(0)))
+          assert(confl.lits.tail.forall(lit => isUnsat(lit)))
+        }
+        assert(confl != null || c == 0) //if confl is null then we reached a UIP
       } while(c > 0)
     }
-    assert(isAssigned(p))
+    logger.debug("UIP: " + literals(p))
     //p is 1-UIP
-    //assert(learntClause.forall(lit => isUnsat(lit)))
+    assert(isSat(p))
+    assert(levels(p>>1) == decisionLevel)
+    assert(learntClause.forall(lit => isUnsat(lit)))
 
     var toSetUnseen: List[Int] = learntClause
 
@@ -342,18 +437,19 @@ class Solver(nbVars: Int)(implicit context: Context) {
     }
 
     learntClause ::= (p ^ 1)  //don't forget to add p in the clause !
-    new Clause(learntClause.toArray)
+    val res = new Clause(learntClause.toArray)
+    logger.debug("Learning clause: " + res.lits.map(literals(_)).mkString("[", ",", "]"))
+    res
   }
 
   def litToVar(lit: Int): Int = lit >> 1
   def litPolarity(lit: Int): Boolean = (lit & 1) == 0
   def isAssigned(lit: Int): Boolean = model(lit >> 1) != -1
   def isUnassigned(lit: Int): Boolean = model(lit >> 1) == -1
-  def isSat(lit: Int): Boolean = (model(lit >> 1) ^ (lit & 1)) == 1
-  def isUnsat(lit: Int): Boolean = (model(lit >> 1) ^ (lit & 1)) == 0
+  def isSat(lit: Int): Boolean = (model(lit >> 1) ^ (lit & 1)) == 0
+  def isUnsat(lit: Int): Boolean = (model(lit >> 1) ^ (lit & 1)) == 1
 
-
-  class CNFFormula(var originalClauses: List[Clause], val nbVar: Int) {
+  private class CNFFormula(var originalClauses: List[Clause], val nbVar: Int) {
     require(originalClauses.forall(cl => cl.lits.forall(lit => lit >= 0 && lit < 2*nbVar)))
     require(originalClauses.forall(cl => cl.lits.size >= 2))
     require(originalClauses.forall(cl => cl.lits.forall(lit => cl.lits.count(l2 => (l2 >> 1) == (lit >> 1)) == 1)))
@@ -476,10 +572,17 @@ class Solver(nbVars: Int)(implicit context: Context) {
     watched(cl.lits(1)).remove(cl)
   }
 
-
+  /*
+   * all enqueued literals are processed by the theory solver as well,
+   * even those returned as t-consequences. This makes the overall invariants
+   * much easier to maintain and consistant.
+   */
   private[this] def enqueueLiteral(lit: Int, from: Clause = null) {
+    logger.trace(
+      "Enqueuing literal [" + literals(lit) + "] from clause: " +
+      (if(from == null) "null" else from.lits.map(literals(_)).mkString("[", ", ", "]")))
     val id = lit >> 1
-    val pol = (lit & 1) ^ 1
+    val pol = (lit & 1)
     assert(model(id) == -1)
     model(id) = pol
     trail.push(lit)
@@ -496,8 +599,10 @@ class Solver(nbVars: Int)(implicit context: Context) {
 
   private[this] def decide() {
     if(cnfFormula.vsidsQueue.isEmpty) {
+      logger.debug("VSIDS queue is empty, model found")
       status = Satisfiable
     } else {
+      logger.debug("Determining decision literal at level %d".format(decisionLevel+1))
 
       // handle assumptions
       var next = 0 // TODO next can be both a variable and a literal, which is confusing
@@ -531,8 +636,10 @@ class Solver(nbVars: Int)(implicit context: Context) {
         if(model(next) == -1) {
           nbDecisions += 1
           decisionLevel += 1
+          logger.debug("Decision literal: " + literals(2*next + (nbDecisions & 1)))
           enqueueLiteral(2*next + (nbDecisions & 1))
-        } else{
+        } else {
+          logger.debug("no more literal to assign: model found")
           status = Satisfiable
         }
       }
@@ -566,9 +673,7 @@ class Solver(nbVars: Int)(implicit context: Context) {
       }
 
       if(nbConflicts == nextRestart) {
-        if(Settings.stats) {
-          println("restart after " + nbConflicts + " nb conflicts")
-        }
+        logger.debug("Restarting after " + nbConflicts + " conflicts")
         restartInterval = (restartInterval*restartFactor).toInt
         nextRestart = nbConflicts + restartInterval
         nbRestarts += 1
@@ -592,8 +697,10 @@ class Solver(nbVars: Int)(implicit context: Context) {
   }
 
 
-  private[this] def backtrackTo(lvl: Int) {
+  private[this] def backtrackTo(lvl: Int): Unit = {
+    logger.debug("Backtracking to level " + lvl)
     while(decisionLevel > lvl && !trail.isEmpty) {
+      //TODO: move pop inside ite body ?
       val head = trail.pop()
       decisionLevel = levels(head >> 1)
       if(decisionLevel > lvl)
@@ -602,10 +709,12 @@ class Solver(nbVars: Int)(implicit context: Context) {
         trail.push(head)
     }
     qHead = trail.size
+    theoryHead = trail.size
     decisionLevel = lvl
   }
 
-  private[this] def undo(lit: Int) {
+  private[this] def undo(lit: Int): Unit = {
+    logger.trace("Undoing literal: " + literals(lit))
     assert(isSat(lit))
     val id = lit>>1
     cnfFormula.vsidsQueue.insert(id)
@@ -616,13 +725,27 @@ class Solver(nbVars: Int)(implicit context: Context) {
       reasonClause.locked = false
       reasons(id) = null
     }
+    if(trail.size < theoryHead && !theoryPropagated(id)) {
+      logger.debug("Theory backtrack for lit: " + literals(lit))
+      tSolver.backtrack(1)
+    }
+    theoryPropagated(id) = false
   }
 
-  private[this] def deduce() {
+  private[this] def deduce(): Unit = {
+    while(qHead < trail.size && status != Conflict) {
+      booleanPropagation()
+      theoryPropagation()
+    }
+  }
 
-    while(qHead < trail.size) {
+  private[this] def booleanPropagation(): Unit = {
+
+    while(qHead < trail.size && status != Conflict) {
 
       val forcedLit = trail(qHead)
+      logger.trace("Processing BCP enqueued literal: " + literals(forcedLit))
+
       //negatedLit is the literals that are made false and need updating of watchers
       val negatedLit = forcedLit ^ 1
       assert(isAssigned(negatedLit))
@@ -634,6 +757,9 @@ class Solver(nbVars: Int)(implicit context: Context) {
       while(i < ws.size) {
         val clause = ws(i)
         val lits = clause.lits
+        logger.trace("Considering clause: " + 
+                     lits.map(literals(_)).mkString("[", ", ", "]") +
+                     " watching literal: " + literals(negatedLit))
         i += 1
 
         assert(lits(0) == negatedLit || lits(1) == negatedLit)
@@ -665,12 +791,13 @@ class Solver(nbVars: Int)(implicit context: Context) {
             j += 1
             if(isUnassigned(lits(0))) {
               nbPropagations += 1
+              logger.debug("Deducing literal: " + literals(lits(0)))
               enqueueLiteral(lits(0), clause)
             } else if(isUnsat(lits(0))) {
+              logger.debug("Detecting conflict during boolean propagation; unsat literal: " + literals(lits(0)))
               status = Conflict
               qHead = trail.size
               conflict = clause
-              assert(conflict.lits.forall(lit => isUnsat(lit)))
               while(i < ws.size) {
                 ws(j) = ws(i)
                 i += 1
@@ -681,15 +808,64 @@ class Solver(nbVars: Int)(implicit context: Context) {
         }
       }
       ws.shrink(i - j)
-
     }
 
+    assert(qHead == trail.size)
+  }
+
+  def theoryPropagation(): Unit = {
+    //theory propagation only propagates up to qHead, so is always behind boolean propagation (TODO: might not be necessary)
+    while(theoryHead < qHead /*trail.size*/ && status != Conflict) {
+      val lit = trail(theoryHead)
+      val tLit = literals(lit)
+      logger.trace("Processing theory head: " + tLit)
+      theoryHead += 1
+      if(!theoryPropagated(lit >> 1)) {
+        logger.debug("Theory setTrue: " + tLit)
+        val res = setTrueStopwatch.time{ tSolver.setTrue(tLit) }
+        res match {
+          case Left(tConsequences) => {
+            tConsequences.foreach(l => {
+              assert(tSolver.isTrue(l))
+              if(status != Conflict) {
+                logger.debug("Theory propagation: " + l)
+                val lInt = 2*l.id + l.polInt
+                assert(lInt != lit)
+                if(isUnsat(lInt)) {
+                  logger.debug("Theory propagation detecting conflict with unsat literal: " + l)
+                  status = Conflict
+                  val trailArray = (for(i <- 0 until trail.size) yield trail(i) ^ 1).toArray
+                  conflict = new Clause(trailArray.filter(el => reasons(el>>1) == null && !theoryPropagated(el>>1)))
+                } else if(isSat(lInt)) {
+                  logger.trace("Theory propagation deducing an already sat literal: " + l)
+                } else {
+                  theoryPropagated(l.id) = true
+                  enqueueLiteral(lInt)
+                }
+              }
+            })
+          } 
+          case Right(unsatCore) => {
+            status = Conflict
+            if(reasons(lit>>1) == null) {
+              logger.debug("Theory conflict triggered by decision literal " + tLit)
+              val trailArray = (for(i <- 0 until trail.size) yield trail(i) ^ 1).toArray
+              conflict = new Clause(trailArray.filter(el => reasons(el>>1) == null && !theoryPropagated(el>>1)))
+            } else {
+              logger.debug("Theory conflict triggered by literal " + tLit)
+              val trailArray = (for(i <- 0 until trail.size) yield trail(i) ^ 1).toArray
+              conflict = new Clause(trailArray.filter(el => reasons(el>>1) == null && !theoryPropagated(el>>1)))
+            }
+          }
+        }
+      }
+    }
   }
 
   //some debugging assertions that can be introduced in the code to check for correctness
 
   //assert that there is no unit clauses in the database
-  def assertNoUnits() {
+  def assertNoUnits(): Unit = {
 
     assert(qHead == trail.size) //we assume that all unit clauses queued have been processed
 
@@ -703,7 +879,7 @@ class Solver(nbVars: Int)(implicit context: Context) {
   }
 
   //assert the invariant of watched literal is correct
-  def assertWatchedInvariant() {
+  def assertWatchedInvariant(): Unit = {
     for(cl <- (cnfFormula.originalClauses ::: cnfFormula.learntClauses)) {
       if(!watched(cl.lits(0)).contains(cl)) {
         println("clause " + cl + " is not correctly watched on " + cl.lits(0))
@@ -733,7 +909,8 @@ class Solver(nbVars: Int)(implicit context: Context) {
     }
   }
 
-  def assertTrailInvariant() {
+  def assertTrailInvariant(): Unit = {
+    assert(qHead <= trail.size)
     val seen: Array[Boolean] = Array.fill(cnfFormula.nbVar)(false) // default value of false
     var lst: List[Int] = Nil
     var currentLevel = decisionLevel
