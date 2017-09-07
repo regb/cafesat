@@ -95,7 +95,7 @@ possibility to customize it to your needs. The solver will also live in the
 same JVM as your main application, and so you will get very precise control.
 
 
-###Command Line
+### Command Line
 
 The basic template for using CafeSat as a command line is:
 
@@ -125,7 +125,7 @@ content of the standard output (where solving result) goes. Solving result
 format is well defined for SMT-LIB script, so it is possible to build
 a stable pipeline.
 
-###Scala API
+### Scala API
 
 CafeSat exports an API usable from Scala programs. The API is not stable
 yet and is expected to change frequently. It will NOT be backward compatible.
