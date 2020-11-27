@@ -3,15 +3,15 @@ package it
 
 import scala.sys.process._
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
 import java.io.File
 import java.io.FileReader
 
 import parsers.Dimacs
 
-class Tests extends FunSuite with Matchers {
+class Tests extends AnyFunSuite with Matchers {
 
   private implicit val testingContext = Context(logger=util.SilentLogger)
 
