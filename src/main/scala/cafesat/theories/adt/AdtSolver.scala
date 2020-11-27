@@ -637,7 +637,7 @@ class AdtSolver {
     //  (note difference between sort(v) vs. sort of tester)
     // FIXME: ACTUALLY, neither makes sense.
     inst.negtests foreach {case Tester(sort, ctor, t) =>
-      val ctorRefs = sig.ctorRefs(sort) - ctor
+      val ctorRefs = sig.ctorRefs(sort).diff(Set(ctor))
       val res = label(ref(t), sort, ctorRefs)
       if (res.isDefined)
         return Unsat(res.head)
@@ -772,13 +772,13 @@ class AdtSolver {
                 for (otherSort <- sig.sortRefs.reverseIterator if otherSort != sort)
                   pushState((r, otherSort, sig.ctorRefs(otherSort)))
                 if (sig.sorts(sort).size > 1)
-                  pushState((r, sort, sig.ctorRefs(sort) - ctor))
+                  pushState((r, sort, sig.ctorRefs(sort).diff(Set(ctor))))
                 (sort, ctor)
               case Some((sort, ctors)) =>
                 printDebug(s"\tsplitting on $r=<${niceTerm(r)}>: [$sort $ctors]")
                 val ctor = ctors.head
                 if (ctors.size > 1)
-                  pushState((r, sort, ctors - ctor))
+                  pushState((r, sort, ctors.diff(Set(ctor))))
                 (sort, ctor)
             }
             // Apply guessed labeling
