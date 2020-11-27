@@ -174,9 +174,9 @@ class AdtSolver {
     val _inEdges      = new ArrayBuffer[mutable.HashSet[TermRef]](inEdges.size) ++=
       inEdges.map(_.clone())
     val _sharedSets   = new mutable.HashMap[(TermRef, TermRef), mutable.HashSet[Index]] ++=
-      sharedSets.mapValues(_.clone())
+      sharedSets.view.mapValues(_.clone())
     val _selectorsOf  = new mutable.HashMap[TermRef, SelectorMap]() ++=
-      selectorsOf.mapValues(_.clone())
+      selectorsOf.view.mapValues(_.clone())
 
     val state = State(
       nextTermId, maxVarId,
