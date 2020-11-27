@@ -2,10 +2,11 @@ package cafesat
 package theories.adt
 
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
 
 import scala.reflect.ClassTag
 
-class AdtSolverListsTests extends FlatSpec with BeforeAndAfter with AdtSolverSpecHelpers {
+class AdtSolverListsTests extends AnyFlatSpec with BeforeAndAfter with AdtSolverSpecHelpers {
 
   //TODO: could be useful to have that for debugging
   //private var _currentTestName: String = "<Unset>"
