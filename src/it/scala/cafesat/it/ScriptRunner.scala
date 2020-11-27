@@ -19,7 +19,7 @@ class Tests extends FunSuite with Matchers {
   val resourceDirHard = "src/it/resources/"
 
   def filesInResourceDir(dir : String, filter : String=>Boolean = all) : Iterable[File] = {    
-    import scala.collection.JavaConversions._
+    import scala.jdk.CollectionConverters._
     val d = this.getClass.getClassLoader.getResource(dir)
     val asFile = if(d == null || d.getProtocol != "file") {
       // We are in Eclipse. The only way we are saved is by hard-coding the path               
