@@ -127,7 +127,7 @@ class AdtSolver {
   protected var instantiated      = new ArrayBuffer[Boolean]
 
   protected val potentialInst     = new mutable.HashSet[TermRef]
-  protected val downSet           = new mutable.ArrayStack[(TermRef, TermRef)]
+  protected val downSet           = new mutable.Stack[(TermRef, TermRef)]
 
   var debug = false
   var debug_didSplit = false
@@ -259,7 +259,7 @@ class AdtSolver {
         //TODO: selectee is head?
         val selectee = subTermRefs.head
         if (instantiated(selectee)) {
-          downSet.push(id, outEdges(selectee)(index0))
+          downSet.push((id, outEdges(selectee)(index0)))
         } else {
           selectorsOf.getOrElseUpdate(selectee, new mutable.HashMap) += (sort, ctor, index0) -> term
 //          potentialInst add id
@@ -488,7 +488,7 @@ class AdtSolver {
           val keysi = selectorsi.keySet
           val keysj = selectorsj.keySet
           for (key <- keysi intersect keysj)
-            downSet push (ref(selectorsi(key)), ref(selectorsj(key)))
+            downSet push ((ref(selectorsi(key)), ref(selectorsj(key))))
           for (key <- keysj diff keysi)
             selectorsi += key -> selectorsj(key)
           // FIXME: Why would we need this? Isn't it covered by label()?
@@ -499,13 +499,13 @@ class AdtSolver {
         case (Some(selectors), _) if esj.nonEmpty =>
           ctorOf(rj) match { case Some((sort, ctor)) =>
             for (((`sort`, `ctor`, index), sel) <- selectors)
-              downSet push (ref(sel), esj(index))
+              downSet push ((ref(sel), esj(index)))
           }
           selectorsOf.remove(ri)
         case (_, Some(selectors)) if esi.nonEmpty =>
           ctorOf(ri) match { case Some((sort, ctor)) =>
             for (((`sort`, `ctor`, index), sel) <- selectors)
-              downSet push (ref(sel), esi(index))
+              downSet push ((ref(sel), esi(index)))
           }
           // No need to remove selectors of rj, since ri will be the representative
 
@@ -580,7 +580,7 @@ class AdtSolver {
               })
             }
             val newConstructor = Constructor(sort, ctor, args.toList)
-            downSet push (t, registerTerm(newConstructor))
+            downSet push ((t, registerTerm(newConstructor)))
             // Kind of ugly, but we can only do this after registering the term:
             for ((index,v) <- freshVars) {
               val argSort = sig.argSort(sort, ctor, index)
