@@ -62,15 +62,15 @@ class Proof(inputs: Set[Set[Literal]]) {
     while(!stack.isEmpty) {
       val inf = stack.top
       if(inferencesAdded.contains(inf))
-        stack.pop
+        stack.pop()
       else inf match {
         case InputInference(_) =>
-          stack.pop
+          stack.pop()
           buffer.append(inf)
           inferencesAdded += inf
         case ResolutionInference(_, left, right) =>
           if(inferencesAdded.contains(left) && inferencesAdded.contains(right)) {
-            stack.pop
+            stack.pop()
             buffer.append(inf)
             inferencesAdded += inf
           } else {

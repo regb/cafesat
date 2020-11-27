@@ -614,7 +614,7 @@ class AdtSolver {
     declaredTypes = inst.declaredTypes
 
     inst.allTopLevelTerms foreach registerTerm
-    sig.allDesignatedTerms foreach registerTerm
+    sig.allDesignatedTerms() foreach registerTerm
     printDebug(dumpTerms())
 
     // Actual algorithm
@@ -671,7 +671,7 @@ class AdtSolver {
               case Right(unsatReason) =>
                 lastUnsatReason = Some(unsatReason)
                 downSet.clear()
-                break
+                break()
               case _ =>
               //
             }
@@ -706,7 +706,7 @@ class AdtSolver {
                     case Right(unsatReason) =>
                       lastUnsatReason = Some(unsatReason)
                       downSet.clear()
-                      break
+                      break()
                     case _ =>
                     //
                   }

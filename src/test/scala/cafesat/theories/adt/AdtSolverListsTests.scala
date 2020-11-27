@@ -127,13 +127,13 @@ class AdtSolverListsTests extends AnyFlatSpec with BeforeAndAfter with AdtSolver
     val x = Variable(1)
     override val eqs = Seq( (Head(x), Fina) )
     override val ineqs = Seq( (Head(x), Fina) )
-    assertUnsatDueTo[InvalidEquality]
+    assertUnsatDueTo[InvalidEquality]()
   }
   it should "return unsat on simple selector inequality" in new FiniteAndListSig {
     val x = Variable(1)
     override val eqs = Seq( (x, Cons(Fina,Nil)) )
     override val ineqs = Seq( (Head(x), Fina) )
-    assertUnsatDueTo[InvalidEquality]
+    assertUnsatDueTo[InvalidEquality]()
   }
   it should "return sat on list equality with selectors" in new FiniteAndListSig {
     val x = Variable(1)
