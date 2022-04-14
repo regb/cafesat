@@ -97,7 +97,7 @@ class AdtSolver {
   protected var sig: Signature = null
   protected var declaredTypes: Typing = null
 
-  protected val stateStack = new mutable.ArrayStack[State]
+  protected val stateStack = new mutable.Stack[State]
 
   // Invariant: size of {terms, eqClass[Siz]es, labels, ...} == nextTermId
   protected var nextTermId: TermRef = 0
@@ -353,7 +353,7 @@ class AdtSolver {
     // TODO: Substitute with some efficient data structure + algorithm
     // TODO: Simple optimization: Cache positive queries, as the set of connected pairs
     //  will only increase monotonically (within any given branch).
-    val work = new mutable.ArrayStack[TermRef]()
+    val work = new mutable.Stack[TermRef]()
     work.push(from)
     while (work.nonEmpty) {
       val t = repr(work.pop())
