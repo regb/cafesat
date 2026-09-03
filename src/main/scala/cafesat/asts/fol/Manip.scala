@@ -376,7 +376,7 @@ object Manip {
   def isPrenexNormalForm(formula: Formula): Boolean = formula match {
     case Forall(_, f) => isPrenexNormalForm(f)
     case Exists(_, f) => isPrenexNormalForm(f)
-	  case _ => forall(formula, (f: Formula) => f match {
+    case _ => forall(formula, (f: Formula) => f match {
       case Forall(_, _) | Exists(_, _) => false
       case _ => true
     })
@@ -434,7 +434,7 @@ object Manip {
   //prenex normal form and only universal quantifier: \forall x1, x2, ... F, where F is quant. free
   def isSkolemNormalForm(formula: Formula): Boolean = formula match {
     case Forall(_, f) => isPrenexNormalForm(f)
-	  case _ => forall(formula, (f: Formula) => f match {
+    case _ => forall(formula, (f: Formula) => f match {
       case Forall(_, _) | Exists(_, _) => false
       case _ => true
     })

@@ -12,8 +12,7 @@ class DimacsSuite extends AnyFunSuite {
   private implicit def stringToInputReader(value: String): Reader = new StringReader(value)
 
   test("Parsing dimacs with one clause and one variable") {
-    val raw1 =
-"""p cnf 1 1
+    val raw1 = """p cnf 1 1
 1 0"""
     val (clauses1, nbVars1) = Dimacs.cnf(raw1)
     assert(nbVars1 === 1)
