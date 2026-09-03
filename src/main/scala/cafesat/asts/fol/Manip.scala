@@ -130,7 +130,8 @@ object Manip {
     require(isQuantifierFree(formula))
 
     def distribute(and1: Formula, and2: Formula): Formula = {
-      val (And(fs1), And(fs2)) = (and1, and2)
+      // and1 and and2 are guaranteed to be And by the caller.
+      val (And(fs1), And(fs2)) = (and1, and2): @unchecked
       And(fs1.flatMap{
         case Or(fss1) =>
           fs2.map{
@@ -230,10 +231,12 @@ object Manip {
   }
 
   private def cleanTrueFalseCNF(and: Formula): Formula = {
-    val And(ors) = and
+    // and is guaranteed to be And by the caller.
+    val And(ors) = and: @unchecked
     var falseOccurs = false
     val newOrs = ors.flatMap(or => {
-      val Or(lits) = or
+      // CNF is And of Ors, so each element of ors is guaranteed Or.
+      val Or(lits) = or: @unchecked
       var trueOccurs = false
       val newLits = lits.flatMap{
         case False() | Not(True()) => Nil
@@ -266,7 +269,8 @@ object Manip {
     require(isQuantifierFree(formula))
 
     def distribute(or1: Formula, or2: Formula): Formula = {
-      val (Or(fs1), Or(fs2)) = (or1, or2)
+      // or1 and or2 are guaranteed to be Or by the caller.
+      val (Or(fs1), Or(fs2)) = (or1, or2): @unchecked
       Or(fs1.flatMap{
         case And(fss1) =>
           fs2.map{
@@ -278,10 +282,12 @@ object Manip {
     }
 
     def cleanTrueFalse(or: Formula): Formula = {
-      val Or(ands) = or
+      // or is guaranteed to be Or by the caller.
+      val Or(ands) = or: @unchecked
       var trueOccurs = false
       val newAnds = ands.flatMap(and => {
-        val And(lits) = and
+        // DNF is Or of Ands, so each element of ands is guaranteed And.
+        val And(lits) = and: @unchecked
         var falseOccurs = false
         val newLits = lits.flatMap{
           case True() | Not(False()) => Nil
