@@ -629,22 +629,30 @@ class AdtSolver {
       downSet.push((ref(s), ref(t)))
     }
 
+    // Finds the first tester for which (a possibly side-effecting)
+    // function produces an UnsatReason and stops iteration immediately.
+    def firstConflict(ts: Iterable[Tester])(f: Tester => Option[UnsatReason]): Option[UnsatReason] =
+      ts.iterator.flatMap(f).nextOption()
+
     // [Lit-level rules / Remove]
-    inst.tests foreach {case Tester(sort, ctor, t) =>
-      val res = label(ref(t), sort, newCtorRefSet(Set(ctor)))
-      if (res.isDefined)
-        return Unsat(res.head)
+    firstConflict(inst.tests) {
+      case Tester(sort, ctor, t) => label(ref(t), sort, newCtorRefSet(Set(ctor)))
+    } match {
+      case Some(reason) => return Unsat(reason)
+      case None => ()
     }
 
     // TODO: Needs test cases
     // NOTE: Does not exactly match rule 'Remove 2' in the paper
     //  (note difference between sort(v) vs. sort of tester)
     // FIXME: ACTUALLY, neither makes sense.
-    inst.negtests foreach {case Tester(sort, ctor, t) =>
-      val ctorRefs = sig.ctorRefs(sort).diff(Set(ctor))
-      val res = label(ref(t), sort, ctorRefs)
-      if (res.isDefined)
-        return Unsat(res.head)
+    firstConflict(inst.negtests) {
+      case Tester(sort, ctor, t) =>
+        val ctorRefs = sig.ctorRefs(sort).diff(Set(ctor))
+        label(ref(t), sort, ctorRefs)
+    } match {
+      case Some(reason) => return Unsat(reason)
+      case None => ()
     }
 
     // = Apply 'normal' rules
