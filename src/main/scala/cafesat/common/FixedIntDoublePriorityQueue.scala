@@ -55,7 +55,7 @@ class FixedIntDoublePriorityQueue(val maxSize: Int) {
 
     var i = pos
     var correctPos = false
-    do {
+    while ({
       val left = 2*i
       val right = left + 1
       if(right <= size) { //two children
@@ -92,7 +92,9 @@ class FixedIntDoublePriorityQueue(val maxSize: Int) {
       } else { //element is a leaf
         correctPos = true
       }
-    } while(!correctPos)
+
+      !correctPos
+    }) ()
 
     heapScores(i) = score
     heapElements(i) = element

@@ -246,7 +246,7 @@ class Solver(nbVars: Int)(implicit context: Context) {
 
     //find 1-UIP
     find1UIPStopWatch.time {
-      do {
+      while ({
         if(p != -1)
           assert(p == (confl.lits(0)))
         cnfFormula.incVSIDSClause(confl)
@@ -269,10 +269,12 @@ class Solver(nbVars: Int)(implicit context: Context) {
 
         //assert(learntClause.forall(lit => levels(lit >> 1) != decisionLevel))
 
-        do {
+        while ({
           trailIndex -= 1
           p = trail(trailIndex)
-        } while(!seen(p>>1))
+
+          !seen(p>>1)
+        }) ()
 
         confl = reasons(p>>1)
         c = c - 1
@@ -283,7 +285,9 @@ class Solver(nbVars: Int)(implicit context: Context) {
         //  assert(isSat(confl.lits(0)))
         //  assert(confl.lits.tail.forall(lit => isUnsat(lit)))
         //}
-      } while(c > 0)
+
+        c > 0
+      }) ()
     }
     assert(isAssigned(p))
     //p is 1-UIP
