@@ -312,7 +312,7 @@ class DPLLSolver[T <: TheoryComponent](nbVars: Int, val theory: T)(implicit val 
     //find 1-UIP
     logger.trace("Searching 1UIP...")
     find1UIPStopWatch.time {
-      do {
+      while ({
         assert(confl != null)
         logger.trace("Current conflict reason: " + confl.lits.map(literals(_)).mkString("[", ", ", "]"))
 
@@ -340,10 +340,12 @@ class DPLLSolver[T <: TheoryComponent](nbVars: Int, val theory: T)(implicit val 
 
         assert(learntClause.forall(lit => levels(lit >> 1) != decisionLevel))
 
-        do {
+        while ({
           trailIndex -= 1
           p = trail(trailIndex)
-        } while(!seen(p>>1))
+
+          !seen(p>>1)
+        }) ()
         assert(isSat(p))
         logger.trace("current UIP: " + literals(p))
 
@@ -376,7 +378,9 @@ class DPLLSolver[T <: TheoryComponent](nbVars: Int, val theory: T)(implicit val 
           assert(confl.lits.tail.forall(lit => isUnsat(lit)))
         }
         assert(confl != null || c == 0) //if confl is null then we reached a UIP
-      } while(c > 0)
+
+        c > 0
+      }) ()
     }
     logger.debug("UIP: " + literals(p))
     //p is 1-UIP
