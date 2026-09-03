@@ -498,16 +498,16 @@ class AdtSolver {
         // Merge selectors with children
         case (Some(selectors), _) if esj.nonEmpty =>
           ctorOf(rj) match {
-            case Some((sort, ctor)) =>
-              for (((`sort`, `ctor`, index), sel) <- selectors)
+            case Some((rjSort, rjCtor)) =>
+              for (((sort, ctor, index), sel) <- selectors if sort == rjSort && ctor == rjCtor)
                 downSet push ((ref(sel), esj(index)))
             case _ => ???
           }
           selectorsOf.remove(ri)
         case (_, Some(selectors)) if esi.nonEmpty =>
           ctorOf(ri) match {
-            case Some((sort, ctor)) =>
-              for (((`sort`, `ctor`, index), sel) <- selectors)
+            case Some((riSort, riCtor)) =>
+              for (((sort, ctor, index), sel) <- selectors if sort == riSort && ctor == riCtor)
                 downSet push ((ref(sel), esi(index)))
             case _ => ???
           }
