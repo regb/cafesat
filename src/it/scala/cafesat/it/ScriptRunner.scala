@@ -13,7 +13,7 @@ import parsers.Dimacs
 
 class Tests extends AnyFunSuite with Matchers {
 
-  private implicit val testingContext = Context(logger=util.SilentLogger)
+  private implicit val testingContext: Context = Context(logger=util.SilentLogger)
 
   val all: String => Boolean = (s: String) => true
   val resourceDirHard = "src/it/resources/"
