@@ -513,8 +513,16 @@ class AdtSolver {
           }
           // No need to remove selectors of rj, since ri will be the representative
 
-        case _ =>
-          selectorsOf.remove(ri)
+        // Neither ri nor rj is instantiated here (both esi and esj are empty),
+        // so ri absorbs rj without resolving anything against known children.
+        // rj's selectors, if any, must still move to ri, since rj stops being
+        // the representative and they would otherwise never be found again.
+        case (None, Some(selectorsj)) =>
+          selectorsOf(ri) = selectorsj
+        case (Some(_), None) =>
+          // ri's own selectors are already filed under the right key
+        case (None, None) =>
+          // Neither side has any selectors
       }
 
       if (esi.isEmpty && esj.nonEmpty)

@@ -126,4 +126,19 @@ class AdtSolverIntsTests extends AnyFlatSpec with AdtSolverSpecHelpers {
     override val ineqs = Seq((x, Zero))
     assertUnsat()
   }
+
+  // Same as above, but x is first merged with an unrelated, otherwise
+  // unconstrained variable z. That merge makes x (not z) the representative
+  // that absorbs the other side, which is what exercises the selector-loss
+  // bug fixed alongside this test: x's own pending Pred(x) selector must
+  // survive being the absorbing side of a merge, not just the absorbed side.
+  it should "return unsat when y is successor of x non-zero and pred are equals, and x first absorbs an unrelated variable" in new SIntSig {
+    val x = Variable(1)
+    val y = Variable(2)
+    val z = Variable(3)
+
+    override val eqs: Seq[(Term, Term)] = Seq((x, z), (Succ(x), y), (Pred(y), Pred(x)))
+    override val ineqs: Seq[(Term, Term)] = Seq((x, Zero))
+    assertUnsat()
+  }
 }
