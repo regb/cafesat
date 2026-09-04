@@ -224,7 +224,7 @@ object Manip {
       case _ => subForm
     }
 
-    val repr = mapPostorder(formula, inductionStep _, (t: Term) => t)
+    val repr = mapPostorder(formula, inductionStep, (t: Term) => t)
     constraints += repr
      
     cleanTrueFalseCNF(And(constraints.toList))
