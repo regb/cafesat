@@ -24,25 +24,25 @@ class AdtSolverIntsTests extends AnyFlatSpec with AdtSolverSpecHelpers {
   }
 
   it should "return sat on zero = zero" in new SIntSig {
-    override val eqs = Seq((Zero, Zero))
+    override val eqs: Seq[(Term, Term)] = Seq((Zero, Zero))
     assertSat()
   }
   it should "return sat on zero = zero with indirection" in new SIntSig {
     val n = Variable(1)
-    override val eqs = Seq((Zero, n), (n, Zero))
+    override val eqs: Seq[(Term, Term)] = Seq((Zero, n), (n, Zero))
     assertSat()
   }
 
   it should "return unsat as zero cannot be the successor of n" in new SIntSig {
     val n = Variable(1)
     val m = Variable(2)
-    override val eqs = Seq( (m, Succ(n)), (m, Zero) )
+    override val eqs: Seq[(Term, Term)] = Seq( (m, Succ(n)), (m, Zero) )
     assertUnsatDueTo[EmptyLabelling]()
   }
   it should "return unsat when s(s(n)) = s(n)" in new SIntSig {
     val n = Variable(1)
     val m = Variable(2)
-    override val eqs = Seq( (m, Succ(Succ(n))), (m, Succ(n)) )
+    override val eqs: Seq[(Term, Term)] = Seq( (m, Succ(Succ(n))), (m, Succ(n)) )
     assertUnsatDueTo[Cyclic]()
   }
 
@@ -50,15 +50,15 @@ class AdtSolverIntsTests extends AnyFlatSpec with AdtSolverSpecHelpers {
     val x = Variable(1)
     val y = Variable(2)
 
-    override val eqs = Seq((Succ(Succ(Succ(Succ(x)))), Succ(Succ(Succ(Succ(y))))), (x, y))
+    override val eqs: Seq[(Term, Term)] = Seq((Succ(Succ(Succ(Succ(x)))), Succ(Succ(Succ(Succ(y))))), (x, y))
     assertSat()
   }
   it should "return unsat with deep congruence of different elements" in new SIntSig {
     val x = Variable(1)
     val y = Variable(2)
 
-    override val eqs = Seq((Succ(Succ(Succ(Succ(x)))), Succ(Succ(Succ(Succ(y))))))
-    override val ineqs = Seq((x, y))
+    override val eqs: Seq[(Term, Term)] = Seq((Succ(Succ(Succ(Succ(x)))), Succ(Succ(Succ(Succ(y))))))
+    override val ineqs: Seq[(Term, Term)] = Seq((x, y))
     assertUnsat()
   }
   it should "return sat with deep term equality split accross several parts" in new SIntSig {
@@ -66,7 +66,7 @@ class AdtSolverIntsTests extends AnyFlatSpec with AdtSolverSpecHelpers {
     val y = Variable(2)
     val z = Variable(3)
 
-    override val eqs = Seq(
+    override val eqs: Seq[(Term, Term)] = Seq(
       (Succ(Succ(Succ(Succ(x)))), Succ(Succ(y))),
       (y, Succ(Succ(z))),
       (x, z)
@@ -78,11 +78,11 @@ class AdtSolverIntsTests extends AnyFlatSpec with AdtSolverSpecHelpers {
     val y = Variable(2)
     val z = Variable(3)
 
-    override val eqs = Seq(
+    override val eqs: Seq[(Term, Term)] = Seq(
       (Succ(Succ(Succ(Succ(x)))), Succ(Succ(y))),
       (y, Succ(Succ(z)))
     )
-    override val ineqs = Seq((x, z))
+    override val ineqs: Seq[(Term, Term)] = Seq((x, z))
     assertUnsat()
   }
 
@@ -95,7 +95,7 @@ class AdtSolverIntsTests extends AnyFlatSpec with AdtSolverSpecHelpers {
     val y = Variable(2)
     val z = Variable(3)
 
-    override val eqs = Seq((Succ(x1), x2), (Succ(x2), x3), (Succ(x3), x4), (Succ(x4), x5), (x5, x1))
+    override val eqs: Seq[(Term, Term)] = Seq((Succ(x1), x2), (Succ(x2), x3), (Succ(x3), x4), (Succ(x4), x5), (x5, x1))
     assertUnsatDueTo[Cyclic]()
   }
 
@@ -104,7 +104,7 @@ class AdtSolverIntsTests extends AnyFlatSpec with AdtSolverSpecHelpers {
     val x = Variable(1)
     val y = Variable(2)
 
-    override val eqs = Seq((Succ(x), y), (Pred(y), Pred(x)))
+    override val eqs: Seq[(Term, Term)] = Seq((Succ(x), y), (Pred(y), Pred(x)))
     assertSat()
   }
 
@@ -112,7 +112,7 @@ class AdtSolverIntsTests extends AnyFlatSpec with AdtSolverSpecHelpers {
     val x = Variable(1)
     val y = Variable(2)
 
-    override val eqs = Seq((Succ(x), y), (Pred(y), Pred(x)))
+    override val eqs: Seq[(Term, Term)] = Seq((Succ(x), y), (Pred(y), Pred(x)))
     override val tests = Seq(IsSucc(x))
     assertUnsat()
   }
@@ -122,8 +122,8 @@ class AdtSolverIntsTests extends AnyFlatSpec with AdtSolverSpecHelpers {
     val x = Variable(1)
     val y = Variable(2)
 
-    override val eqs = Seq((Succ(x), y), (Pred(y), Pred(x)))
-    override val ineqs = Seq((x, Zero))
+    override val eqs: Seq[(Term, Term)] = Seq((Succ(x), y), (Pred(y), Pred(x)))
+    override val ineqs: Seq[(Term, Term)] = Seq((x, Zero))
     assertUnsat()
   }
 

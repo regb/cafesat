@@ -31,8 +31,8 @@ class AdtSolverIntListsTests extends AnyFlatSpec with AdtSolverSpecHelpers {
     val x = Variable(1)
     val m = Variable(2)
     val y = Variable(3)
-    override val eqs = Seq( (x, Cons(m, y)) )
-    override val ineqs = Seq( (m, Zero), (Head(y), Zero) )
+    override val eqs: Seq[(Term, Term)] = Seq( (x, Cons(m, y)) )
+    override val ineqs: Seq[(Term, Term)] = Seq( (m, Zero), (Head(y), Zero) )
     assertSat()
   }
 

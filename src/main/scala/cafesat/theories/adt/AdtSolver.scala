@@ -53,7 +53,7 @@ case class Variable(varId: VarId) extends Term
 case class Constant(constId: ConstId) extends Term
 case class Constructor(sort: SortRef, ctor: CtorRef,
                        args: List[Term]) extends Term {
-  override def subTerms = args.toSeq
+  override def subTerms: Seq[Term] = args.toSeq
 }
 case class Selector(sort: SortRef, ctor: CtorRef,
                     index: Index, arg: Term) extends Term {

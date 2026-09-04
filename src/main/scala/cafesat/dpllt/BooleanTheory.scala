@@ -34,7 +34,7 @@ object BooleanTheory extends TheoryComponent {
 
     final override def explanation(l: Literal): Set[Literal] = Set()
 
-    final override def check() = None
+    final override def check(): Option[Set[Literal]] = None
   }
 
   override def makeSolver(ls: Set[Set[Literal]]) = new PropositionalSolver
