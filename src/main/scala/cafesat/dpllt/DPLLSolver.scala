@@ -101,7 +101,10 @@ class DPLLSolver[T <: TheoryComponent](nbVars: Int, val theory: T)(implicit val 
   private val setTrueStopwatch = StopWatch("setTrue")
   private val tBacktrackStopwatch = StopWatch("t-backtrack")
 
-  var tSolver: theory.Solver = _
+  // Scala 3 compatible `uninitialized` to replace the '_' initializer in Scala 2.13.
+  private def uninitialized[U]: U = null.asInstanceOf[U]
+
+  private var tSolver: theory.Solver = uninitialized
 
   //ignore size 1 for watched literal, they are never kept in the db
   private class Clause(val lits: Array[Int]) {
