@@ -28,7 +28,6 @@ lazy val root = (project in file("."))
 
     Test / parallelExecution := true,
 
-    libraryDependencies += "com.regblanc" %% "scala-smtlib" % "0.2.1-42-gc68dbaa",
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.20" % Test
   )
 
