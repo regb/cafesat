@@ -29,7 +29,7 @@ class Solver(nbVars: Int)(implicit context: Context) {
 
   private val logger = context.logger
 
-  private[this] implicit val tag: Logger.Tag = new Logger.Tag("native-sat")
+  private implicit val tag: Logger.Tag = new Logger.Tag("native-sat")
 
   import Solver._
 
@@ -46,43 +46,43 @@ class Solver(nbVars: Int)(implicit context: Context) {
   private case object Unknown extends Status
   private case object Timeout extends Status
 
-  private[this] var nbConflicts = 0
-  private[this] var nbDecisions = 0
-  private[this] var nbPropagations = 0
-  private[this] var nbLearntClauseTotal = 0
-  private[this] var nbLearntLiteralTotal = 0
-  private[this] var nbRemovedClauses = 0
-  private[this] var nbRemovedLiteral = 0
-  private[this] var nbRestarts = 0
-  private[this] var nbSolveCalls = 0
+  private var nbConflicts = 0
+  private var nbDecisions = 0
+  private var nbPropagations = 0
+  private var nbLearntClauseTotal = 0
+  private var nbLearntLiteralTotal = 0
+  private var nbRemovedClauses = 0
+  private var nbRemovedLiteral = 0
+  private var nbRestarts = 0
+  private var nbSolveCalls = 0
          
-  private[this] var decisionLevel = 0
-  private[this] var trail: FixedIntStack = new FixedIntStack(nbVars) //store literals, but only one polarity at the same time, so nbVar size is enough
-  private[this] var qHead = 0
-  private[this] var reasons: Array[Clause] = new Array(nbVars)
-  private[this] var levels: Array[Int] = Array.fill(nbVars)(-1)
-  private[this] var model: Array[Int] = Array.fill(nbVars)(-1)
-  private[this] var watched: Array[Vector[Clause]] = Array.fill(2*nbVars)(new Vector(20))
-  private[this] var incrementallyAddedClauses: List[Clause] = Nil
-  private[this] var learntClauses: List[Clause] = Nil
+  private var decisionLevel = 0
+  private var trail: FixedIntStack = new FixedIntStack(nbVars) //store literals, but only one polarity at the same time, so nbVar size is enough
+  private var qHead = 0
+  private var reasons: Array[Clause] = new Array(nbVars)
+  private var levels: Array[Int] = Array.fill(nbVars)(-1)
+  private var model: Array[Int] = Array.fill(nbVars)(-1)
+  private var watched: Array[Vector[Clause]] = Array.fill(2*nbVars)(new Vector(20))
+  private var incrementallyAddedClauses: List[Clause] = Nil
+  private var learntClauses: List[Clause] = Nil
   /*
    * seen can be used locally for algorithms to maintain variables that have been seen
    * They should maintain the invariant that seen is set to false everywhere.
    * History proved that locally initializing this array where needed was a killer for performance.
    */
-  private[this] var seen: Array[Boolean] = Array.fill(nbVars)(false)
-  private[this] var status: Status = Unknown
-  private[this] var restartInterval = Settings.restartInterval
-  private[this] var nextRestart = restartInterval
-  private[this] val restartFactor = Settings.restartFactor
+  private var seen: Array[Boolean] = Array.fill(nbVars)(false)
+  private var status: Status = Unknown
+  private var restartInterval = Settings.restartInterval
+  private var nextRestart = restartInterval
+  private val restartFactor = Settings.restartFactor
 
-  private[this] var cnfFormula: CNFFormula = null
-  private[this] var conflict: Clause = null
-  private[this] var assumptions: Array[Int] = null
+  private var cnfFormula: CNFFormula = null
+  private var conflict: Clause = null
+  private var assumptions: Array[Int] = null
 
-  private[this] val conflictAnalysisStopWatch = StopWatch("backtrack.conflictanalysis")
-  private[this] val find1UIPStopWatch = StopWatch("backtrack.conflictanalysis.find1uip")
-  private[this] val clauseMinimizationStopWatch = StopWatch("backtrack.conflictanalysis.clauseminimization")
+  private val conflictAnalysisStopWatch = StopWatch("backtrack.conflictanalysis")
+  private val find1UIPStopWatch = StopWatch("backtrack.conflictanalysis.find1uip")
+  private val clauseMinimizationStopWatch = StopWatch("backtrack.conflictanalysis.clauseminimization")
 
   def resetSolver(): Unit = {
     nbConflicts = 0
@@ -151,7 +151,7 @@ class Solver(nbVars: Int)(implicit context: Context) {
     search()
   }
   
-  private[this] def search(): Results.Result = {
+  private def search(): Results.Result = {
     val topLevelStopWatch = StopWatch("toplevelloop")
     val deduceStopWatch = StopWatch("deduce")
     val decideStopWatch = StopWatch("decide")
@@ -229,7 +229,7 @@ class Solver(nbVars: Int)(implicit context: Context) {
   
   }
 
-  private[this] def conflictAnalysis: Clause = {
+  private def conflictAnalysis: Clause = {
     assert(conflict != null)
     //assert(seen.forall(b => !b))
 
@@ -470,18 +470,18 @@ class Solver(nbVars: Int)(implicit context: Context) {
     override def toString: String = (learntClauses ++ originalClauses).mkString("{\n", "\n", "\n}")
   }
 
-  private[this] def recordClause(cl: Clause): Unit = {
+  private def recordClause(cl: Clause): Unit = {
     watched(cl.lits(0)).append(cl)
     watched(cl.lits(1)).append(cl)
   }
 
-  private[this] def unrecordClause(cl: Clause): Unit = {
+  private def unrecordClause(cl: Clause): Unit = {
     watched(cl.lits(0)).remove(cl)
     watched(cl.lits(1)).remove(cl)
   }
 
 
-  private[this] def enqueueLiteral(lit: Int, from: Clause = null): Unit = {
+  private def enqueueLiteral(lit: Int, from: Clause = null): Unit = {
     val id = lit >> 1
     val pol = (lit & 1) ^ 1
     assert(model(id) == -1)
@@ -498,7 +498,7 @@ class Solver(nbVars: Int)(implicit context: Context) {
     levels(id) = decisionLevel
   }
 
-  private[this] def decide(): Unit = {
+  private def decide(): Unit = {
     if(cnfFormula.vsidsQueue.isEmpty) {
       status = Satisfiable
     } else {
@@ -543,7 +543,7 @@ class Solver(nbVars: Int)(implicit context: Context) {
     }
   }
 
-  private[this] def backtrack(): Unit = {
+  private def backtrack(): Unit = {
     if(decisionLevel == 0)
       status = Unsatisfiable
     else {
@@ -596,7 +596,7 @@ class Solver(nbVars: Int)(implicit context: Context) {
   }
 
 
-  private[this] def backtrackTo(lvl: Int): Unit = {
+  private def backtrackTo(lvl: Int): Unit = {
     while(decisionLevel > lvl && !trail.isEmpty) {
       val head = trail.pop()
       decisionLevel = levels(head >> 1)
@@ -609,7 +609,7 @@ class Solver(nbVars: Int)(implicit context: Context) {
     decisionLevel = lvl
   }
 
-  private[this] def undo(lit: Int): Unit = {
+  private def undo(lit: Int): Unit = {
     assert(isSat(lit))
     val id = lit>>1
     cnfFormula.vsidsQueue.insert(id)
@@ -622,7 +622,7 @@ class Solver(nbVars: Int)(implicit context: Context) {
     }
   }
 
-  private[this] def deduce(): Unit = {
+  private def deduce(): Unit = {
 
     while(qHead < trail.size) {
 

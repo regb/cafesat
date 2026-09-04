@@ -42,7 +42,7 @@ class DPLLSolver[T <: TheoryComponent](nbVars: Int, val theory: T)(implicit val 
 
   private val logger = context.logger
 
-  private[this] implicit val tag: Logger.Tag = new Logger.Tag("dpllt")
+  private implicit val tag: Logger.Tag = new Logger.Tag("dpllt")
 
   import DPLLSolver._
 
@@ -52,54 +52,54 @@ class DPLLSolver[T <: TheoryComponent](nbVars: Int, val theory: T)(implicit val 
    * take it as a black box.
    */
 
-  private[this] var nbConflicts = 0
-  private[this] var nbDecisions = 0
-  private[this] var nbPropagations = 0
-  private[this] var nbLearntClauseTotal = 0
-  private[this] var nbLearntLiteralTotal = 0
-  private[this] var nbRemovedClauses = 0
-  private[this] var nbRemovedLiteral = 0
-  private[this] var nbRestarts = 0
-  private[this] var nbSolveCalls = 0
+  private var nbConflicts = 0
+  private var nbDecisions = 0
+  private var nbPropagations = 0
+  private var nbLearntClauseTotal = 0
+  private var nbLearntLiteralTotal = 0
+  private var nbRemovedClauses = 0
+  private var nbRemovedLiteral = 0
+  private var nbRestarts = 0
+  private var nbSolveCalls = 0
          
-  private[this] var decisionLevel = 0
-  private[this] var trail: FixedIntStack = new FixedIntStack(nbVars) //store literals, but only of one unique polarity per literal, so nbVar size is enough //TODO: could it be that we need nbVars + 1 ?
-  private[this] var qHead = 0
-  private[this] var theoryHead = 0
+  private var decisionLevel = 0
+  private var trail: FixedIntStack = new FixedIntStack(nbVars) //store literals, but only of one unique polarity per literal, so nbVar size is enough //TODO: could it be that we need nbVars + 1 ?
+  private var qHead = 0
+  private var theoryHead = 0
 
   //reasons contains the clause explaining why bcp propagated a certain propositional variable
   //it could be null for either of three reasons: (1) not yet assigned (2) decision variable (3) theory propagation
-  private[this] var reasons: Array[Clause] = new Array(nbVars)
-  private[this] var theoryPropagated: Array[Boolean] = new Array(nbVars)
-  private[this] var levels: Array[Int] = Array.fill(nbVars)(-1)
+  private var reasons: Array[Clause] = new Array(nbVars)
+  private var theoryPropagated: Array[Boolean] = new Array(nbVars)
+  private var levels: Array[Int] = Array.fill(nbVars)(-1)
   //model for each literal id: -1 is unknown, 0 is false, 1 is true
-  private[this] var model: Array[Int] = Array.fill(nbVars)(-1)
-  private[this] var watched: Array[Vector[Clause]] = Array.fill(2*nbVars)(new Vector(20))
-  private[this] var incrementallyAddedClauses: List[Clause] = Nil
-  private[this] var learntClauses: List[Clause] = Nil
+  private var model: Array[Int] = Array.fill(nbVars)(-1)
+  private var watched: Array[Vector[Clause]] = Array.fill(2*nbVars)(new Vector(20))
+  private var incrementallyAddedClauses: List[Clause] = Nil
+  private var learntClauses: List[Clause] = Nil
   /*
    * seen can be used locally for algorithms to maintain variables that have been seen
    * They should maintain the invariant that seen is set to false everywhere.
    * History proved that locally initializing this array where needed was a killer for performance.
    */
-  private[this] var seen: Array[Boolean] = Array.fill(nbVars)(false)
-  private[this] var status: Status = Unknown
-  private[this] var restartInterval = Settings.restartInterval
-  private[this] var nextRestart = restartInterval
-  private[this] val restartFactor = Settings.restartFactor
+  private var seen: Array[Boolean] = Array.fill(nbVars)(false)
+  private var status: Status = Unknown
+  private var restartInterval = Settings.restartInterval
+  private var nextRestart = restartInterval
+  private val restartFactor = Settings.restartFactor
 
-  private[this] var cnfFormula: CNFFormula = null
-  private[this] var conflict: Clause = null
-  private[this] var assumptions: Array[Int] = null
+  private var cnfFormula: CNFFormula = null
+  private var conflict: Clause = null
+  private var assumptions: Array[Int] = null
 
-  private[this] var literals: Array[Literal] = new Array(2*nbVars)
+  private var literals: Array[Literal] = new Array(2*nbVars)
 
-  private[this] val conflictAnalysisStopWatch = StopWatch("backtrack.conflictanalysis")
-  private[this] val find1UIPStopWatch = StopWatch("backtrack.conflictanalysis.find1uip")
-  private[this] val clauseMinimizationStopWatch = StopWatch("backtrack.conflictanalysis.clauseminimization")
-  private[this] val explanationStopwatch = StopWatch("explanation")
-  private[this] val setTrueStopwatch = StopWatch("setTrue")
-  private[this] val tBacktrackStopwatch = StopWatch("t-backtrack")
+  private val conflictAnalysisStopWatch = StopWatch("backtrack.conflictanalysis")
+  private val find1UIPStopWatch = StopWatch("backtrack.conflictanalysis.find1uip")
+  private val clauseMinimizationStopWatch = StopWatch("backtrack.conflictanalysis.clauseminimization")
+  private val explanationStopwatch = StopWatch("explanation")
+  private val setTrueStopwatch = StopWatch("setTrue")
+  private val tBacktrackStopwatch = StopWatch("t-backtrack")
 
   var tSolver: theory.Solver = _
 
@@ -199,7 +199,7 @@ class DPLLSolver[T <: TheoryComponent](nbVars: Int, val theory: T)(implicit val 
     search()
   }
   
-  private[this] def search(): Results.Result = {
+  private def search(): Results.Result = {
     val topLevelStopWatch = StopWatch("toplevelloop")
     val deduceStopWatch = StopWatch("deduce")
     val decideStopWatch = StopWatch("decide")
@@ -292,7 +292,7 @@ class DPLLSolver[T <: TheoryComponent](nbVars: Int, val theory: T)(implicit val 
   
   }
 
-  private[this] def conflictAnalysis: Clause = {
+  private def conflictAnalysis: Clause = {
     implicit val tag = new Logger.Tag("Conflict Analysis")
     logger.debug("Conflict analysis: " + conflict.lits.map(literals(_)).mkString("[", ", ", "]"))
     assert(conflict != null)
@@ -568,12 +568,12 @@ class DPLLSolver[T <: TheoryComponent](nbVars: Int, val theory: T)(implicit val 
     override def toString: String = (learntClauses ++ originalClauses).mkString("{\n", "\n", "\n}")
   }
 
-  private[this] def recordClause(cl: Clause): Unit = {
+  private def recordClause(cl: Clause): Unit = {
     watched(cl.lits(0)).append(cl)
     watched(cl.lits(1)).append(cl)
   }
 
-  private[this] def unrecordClause(cl: Clause): Unit = {
+  private def unrecordClause(cl: Clause): Unit = {
     watched(cl.lits(0)).remove(cl)
     watched(cl.lits(1)).remove(cl)
   }
@@ -583,7 +583,7 @@ class DPLLSolver[T <: TheoryComponent](nbVars: Int, val theory: T)(implicit val 
    * even those returned as t-consequences. This makes the overall invariants
    * much easier to maintain and consistant.
    */
-  private[this] def enqueueLiteral(lit: Int, from: Clause = null): Unit = {
+  private def enqueueLiteral(lit: Int, from: Clause = null): Unit = {
     logger.trace(
       "Enqueuing literal [" + literals(lit) + "] from clause: " +
       (if(from == null) "null" else from.lits.map(literals(_)).mkString("[", ", ", "]")))
@@ -603,7 +603,7 @@ class DPLLSolver[T <: TheoryComponent](nbVars: Int, val theory: T)(implicit val 
     levels(id) = decisionLevel
   }
 
-  private[this] def decide(): Unit = {
+  private def decide(): Unit = {
     if(cnfFormula.vsidsQueue.isEmpty) {
       logger.debug("VSIDS queue is empty, model found")
       status = Satisfiable
@@ -652,7 +652,7 @@ class DPLLSolver[T <: TheoryComponent](nbVars: Int, val theory: T)(implicit val 
     }
   }
 
-  private[this] def backtrack(): Unit = {
+  private def backtrack(): Unit = {
     if(decisionLevel == 0)
       status = Unsatisfiable
     else {
@@ -703,7 +703,7 @@ class DPLLSolver[T <: TheoryComponent](nbVars: Int, val theory: T)(implicit val 
   }
 
 
-  private[this] def backtrackTo(lvl: Int): Unit = {
+  private def backtrackTo(lvl: Int): Unit = {
     logger.debug("Backtracking to level " + lvl)
     while(decisionLevel > lvl && !trail.isEmpty) {
       //TODO: move pop inside ite body ?
@@ -719,7 +719,7 @@ class DPLLSolver[T <: TheoryComponent](nbVars: Int, val theory: T)(implicit val 
     decisionLevel = lvl
   }
 
-  private[this] def undo(lit: Int): Unit = {
+  private def undo(lit: Int): Unit = {
     logger.trace("Undoing literal: " + literals(lit))
     assert(isSat(lit))
     val id = lit>>1
@@ -738,14 +738,14 @@ class DPLLSolver[T <: TheoryComponent](nbVars: Int, val theory: T)(implicit val 
     theoryPropagated(id) = false
   }
 
-  private[this] def deduce(): Unit = {
+  private def deduce(): Unit = {
     while(qHead < trail.size && status != Conflict) {
       booleanPropagation()
       theoryPropagation()
     }
   }
 
-  private[this] def booleanPropagation(): Unit = {
+  private def booleanPropagation(): Unit = {
 
     while(qHead < trail.size && status != Conflict) {
 
