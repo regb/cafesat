@@ -28,7 +28,7 @@ lazy val root = (project in file(".")).
     parallelExecution in Test := true,
 
     libraryDependencies += "com.regblanc" %% "scala-smtlib" % "0.2.1-42-gc68dbaa",
-    libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.10" % "test,it"
+    libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.20" % "test,it"
   ).
   configs( IntegrationTest ).
   settings( Defaults.itSettings : _*)
