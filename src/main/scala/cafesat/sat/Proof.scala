@@ -64,18 +64,18 @@ class Proof(inputs: Set[Set[Literal]]) {
       if(inferencesAdded.contains(inf))
         stack.pop()
       else inf match {
-        case InputInference(_) =>
+        case _: InputInference =>
           stack.pop()
           buffer.append(inf)
           inferencesAdded += inf
-        case ResolutionInference(_, left, right) =>
-          if(inferencesAdded.contains(left) && inferencesAdded.contains(right)) {
+        case ri: ResolutionInference =>
+          if(inferencesAdded.contains(ri.leftPremise) && inferencesAdded.contains(ri.rightPremise)) {
             stack.pop()
             buffer.append(inf)
             inferencesAdded += inf
           } else {
-            stack.push(left)
-            stack.push(right)
+            stack.push(ri.leftPremise)
+            stack.push(ri.rightPremise)
           }
       }
     }

@@ -29,13 +29,17 @@ object Interpolation {
     ).toList)
 
     inferences.zipWithIndex.foreach{
-      case (inf@InputInference(clause), i) => {
+      case (inf: InputInference, i) => {
+        val clause = inf.clause
         if(leftFormulas.contains(clause))
           p(clause) = g(clause)
         else
           p(clause) = True
       }
-      case (inf@ResolutionInference(clause, left, right), i) => {
+      case (inf: ResolutionInference, i) => {
+        val clause = inf.clause
+        val left = inf.leftPremise
+        val right = inf.rightPremise
         val pivot = left.clause.find(lit => right.clause.exists(lit2 => lit.getID == lit2.getID && lit.polInt != lit2.polInt)).get.getID
         if(localVariables.contains(pivot))
           p(clause) = Or(List(p(left.clause), p(right.clause)))

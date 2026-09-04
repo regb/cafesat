@@ -31,13 +31,15 @@ object ProofPrinter {
     val infToIndex = inferences.zipWithIndex.toMap
     
     inferences.zipWithIndex.map{
-      case (InputInference(cl), i) => 
-        "[" + i + "] " + 
-        cl.mkString(", ") +
+      case (inf: InputInference, i) =>
+        "[" + i + "] " +
+        inf.clause.mkString(", ") +
         " INPUT"
-      case (ResolutionInference(cl, left, right), i) =>
-        "[" + i + "] " + 
-        cl.mkString(", ") +
+      case (inf: ResolutionInference, i) =>
+        val left = inf.leftPremise
+        val right = inf.rightPremise
+        "[" + i + "] " +
+        inf.clause.mkString(", ") +
         " RESOL {" + infToIndex(left) + ", " + infToIndex(right) + "}"
     }.mkString("\n")
   }
