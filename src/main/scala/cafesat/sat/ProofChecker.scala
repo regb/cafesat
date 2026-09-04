@@ -18,9 +18,12 @@ object ProofChecker {
       while(i < inferences.size && isValid) {
         try {
           inferences(i) match {
-            case inf@InputInference(_) => //input clause is valid
+            case inf: InputInference => //input clause is valid
               infToIndex(inf) = i
-            case inf@ResolutionInference(cl, left, right) => {
+            case inf: ResolutionInference => {
+              val cl = inf.clause
+              val left = inf.leftPremise
+              val right = inf.rightPremise
               val leftIndex = infToIndex(left)
               val rightIndex = infToIndex(right)
               if(leftIndex >= i || rightIndex >= i) //only refer to previous inferences

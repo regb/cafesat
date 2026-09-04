@@ -1,11 +1,11 @@
 package cafesat.sat
 
 //equality is only defined by references on Inference, no deep equality
-abstract class Inference {
+sealed abstract class Inference {
   val clause: Set[Literal]
 }
 
-class ResolutionInference(val clause: Set[Literal], val leftPremise: Inference, val rightPremise: Inference) extends Inference {
+final class ResolutionInference(val clause: Set[Literal], val leftPremise: Inference, val rightPremise: Inference) extends Inference {
 
   override def toString: String = {
     leftPremise.clause.toString + " AND " + rightPremise.clause.toString + " => " + clause.toString
@@ -19,7 +19,7 @@ object ResolutionInference {
 
 }
 
-class InputInference(val clause: Set[Literal]) extends Inference {
+final class InputInference(val clause: Set[Literal]) extends Inference {
   override def toString: String = {
     clause.toString
   }
