@@ -86,7 +86,7 @@ class FormulaBuilderSuite extends AnyFunSuite {
   }
 
   test("Formulas built with iff work as expected") {
-    val f1 = (x1 iff x2) && !x1
+    val f1 = (x1 `iff` x2) && !x1
     val r1 = solveForSatisfiability(f1 && x2)
     assert(r1 === None)
     val r2 = solveForSatisfiability(f1 && !x2)
@@ -98,7 +98,7 @@ class FormulaBuilderSuite extends AnyFunSuite {
   }
 
   test("Formulas built with xor work as expected") {
-    val f1 = (x1 xor x2) && !x1
+    val f1 = (x1 `xor` x2) && !x1
     val r1 = solveForSatisfiability(f1 && !x2)
     assert(r1 === None)
     val r2 = solveForSatisfiability(f1 && x2)
@@ -120,12 +120,12 @@ class FormulaBuilderSuite extends AnyFunSuite {
     val r = propVar("r")
 
     val f = (
-      (np iff !p) &&
-      (nq iff !q) &&
-      (c1 iff (!p || q)) &&
-      (c2 iff (p || !q)) &&
-      (r iff (c1 && c2)) &&
-      (!p iff r)
+      (np `iff` !p) &&
+      (nq `iff` !q) &&
+      (c1 `iff` (!p || q)) &&
+      (c2 `iff` (p || !q)) &&
+      (r `iff` (c1 && c2)) &&
+      (!p `iff` r)
     )
 
     val r1 = solveForSatisfiability(f && p)
