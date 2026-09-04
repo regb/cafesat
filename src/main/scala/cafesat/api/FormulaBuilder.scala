@@ -34,14 +34,14 @@ object FormulaBuilder {
     * @param fs sequence of formulas to be combined
     * @return a new Formula instance that represents the disjunction of the input formulas
     */
-  def or(fs: Formula*): Formula = new Formula(Or(fs.map(_.formula): _*))
+  def or(fs: Formula*): Formula = new Formula(Or(fs.map(_.formula).toList))
 
   /** Builds a conjunction of formulas.
     *
     * @param fs sequence of formulas to be combined
     * @return a new Formula instance that represents the conjunction of the input formulas
     */
-  def and(fs: Formula*): Formula = new Formula(And(fs.map(_.formula): _*))
+  def and(fs: Formula*): Formula = new Formula(And(fs.map(_.formula).toList))
 
   /** Returns the formula representation of a `Boolean`.
     *
