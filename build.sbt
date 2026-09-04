@@ -6,7 +6,7 @@ java -classpath "%s" %s "$@"
 """
 
 cafesat := {
-  val cp = (fullClasspath in Runtime).value
+  val cp = (Runtime / fullClasspath).value
   val mainClass = "cafesat.Main"
   val contents = runnerScriptTemplate.format(cp.files.absString, mainClass)
   val out = target.value / "cafesat"
@@ -22,10 +22,10 @@ lazy val root = (project in file(".")).
     scalaVersion := "2.13.18",
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
 
-    javaOptions in IntegrationTest ++= Seq("-Xss10M"),
-    fork in IntegrationTest := true,
-    logBuffered in IntegrationTest := false,
-    parallelExecution in Test := true,
+    IntegrationTest / javaOptions ++= Seq("-Xss10M"),
+    IntegrationTest / fork := true,
+    IntegrationTest / logBuffered := false,
+    Test / parallelExecution := true,
 
     libraryDependencies += "com.regblanc" %% "scala-smtlib" % "0.2.1-42-gc68dbaa",
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.20" % "test,it"
