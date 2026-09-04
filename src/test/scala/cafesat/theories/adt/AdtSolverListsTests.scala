@@ -53,22 +53,22 @@ class AdtSolverListsTests extends AnyFlatSpec with BeforeAndAfter with AdtSolver
   }
 
   it should "return sat on equality of empty lists" in new FiniteAndListSig {
-    override val eqs = Seq( (Nil, Nil) )
+    override val eqs: Seq[(Term, Term)] = Seq( (Nil, Nil) )
     assertSat()
   }
   it should "return sat on list with same constants" in new FiniteAndListSig {
-    override val eqs = Seq( (Cons(Fina,Nil), Cons(Fina,Nil)) )
+    override val eqs: Seq[(Term, Term)] = Seq( (Cons(Fina,Nil), Cons(Fina,Nil)) )
     assertSat()
   }
   it should "return unsat on list with different constants" in new FiniteAndListSig {
-    override val eqs = Seq( (Cons(Fina,Nil), Cons(Finb,Nil)) )
+    override val eqs: Seq[(Term, Term)] = Seq( (Cons(Fina,Nil), Cons(Finb,Nil)) )
     assertUnsat()
   }
   it should "return unsat when x is two different constructors" in new FiniteAndListSig {
     val x = Variable(1)
     val y = Variable(2)
     val z = Variable(3)
-    override val eqs = Seq( (x, Cons(y,z)), (x, Nil) )
+    override val eqs: Seq[(Term, Term)] = Seq( (x, Cons(y,z)), (x, Nil) )
     assertUnsatDueTo[EmptyLabelling]()
   }
   it should "return unsat when x=y but two different constructors" in new FiniteAndListSig {
@@ -76,84 +76,84 @@ class AdtSolverListsTests extends AnyFlatSpec with BeforeAndAfter with AdtSolver
     val y = Variable(2)
     val z = Variable(3)
     val z2 = Variable(4)
-    override val eqs = Seq( (x, Cons(z,z2)), (y, Nil), (x,y) )
+    override val eqs: Seq[(Term, Term)] = Seq( (x, Cons(z,z2)), (y, Nil), (x,y) )
     assertUnsatDueTo[EmptyLabelling]()
   }
 
   it should "return sat on list equality with variables" in new FiniteAndListSig {
     val x = Variable(1)
     val y = Variable(2)
-    override val eqs = Seq( (Cons(x,Nil), Cons(y,Nil)) )
+    override val eqs: Seq[(Term, Term)] = Seq( (Cons(x,Nil), Cons(y,Nil)) )
     assertSat()
   }
 
   it should "return unsat on list inequality with variable" in new FiniteAndListSig {
     val x = Variable(1)
     val y = Variable(2)
-    override val eqs = Seq( (Cons(x,Nil), Cons(y,Nil)) )
-    override val ineqs = Seq( (x,y) )
+    override val eqs: Seq[(Term, Term)] = Seq( (Cons(x,Nil), Cons(y,Nil)) )
+    override val ineqs: Seq[(Term, Term)] = Seq( (x,y) )
     assertUnsatDueTo[InvalidEquality]()
   }
 
   it should "return unsat on list cycle" in new FiniteAndListSig {
     val x = Variable(1)
     val y = Variable(2)
-    override val eqs = Seq( (Cons(x,y), y) )
+    override val eqs: Seq[(Term, Term)] = Seq( (Cons(x,y), y) )
     assertUnsatDueTo[Cyclic]()
   }
   it should "return unsat on list cycle with inconsistant variables" in new FiniteAndListSig {
     val x = Variable(1)
-    override val eqs = Seq( (Cons(x,Nil), x) )
+    override val eqs: Seq[(Term, Term)] = Seq( (Cons(x,Nil), x) )
     assertUnsatDueTo[Cyclic]()
   }
 
   it should "return sat on list len [_] <= len [_,_]" in new FiniteAndListSig {
     val x = Variable(1)
-    override val eqs = Seq( (Cons(Fina,x), Cons(Fina,Cons(Fina,Nil))) )
+    override val eqs: Seq[(Term, Term)] = Seq( (Cons(Fina,x), Cons(Fina,Cons(Fina,Nil))) )
     assertSat()
   }
   it should "return unsat on list len [_,_] <= len [_]" in new FiniteAndListSig {
     val x = Variable(1)
-    override val eqs = Seq( (Cons(Fina,Nil), Cons(Fina,Cons(Fina,x))) )
+    override val eqs: Seq[(Term, Term)] = Seq( (Cons(Fina,Nil), Cons(Fina,Cons(Fina,x))) )
     assertUnsatDueTo[EmptyLabelling]()
   }
   it should "return sat on list with variable equals Nil" in new FiniteAndListSig {
     val x = Variable(1)
-    override val eqs = Seq( (Cons(Fina,x), Cons(Fina,Nil)) )
+    override val eqs: Seq[(Term, Term)] = Seq( (Cons(Fina,x), Cons(Fina,Nil)) )
     assertSat()
   }
 
   it should "return unsat on trivial selector inequality" in new FiniteAndListSig {
     val x = Variable(1)
-    override val eqs = Seq( (Head(x), Fina) )
-    override val ineqs = Seq( (Head(x), Fina) )
+    override val eqs: Seq[(Term, Term)] = Seq( (Head(x), Fina) )
+    override val ineqs: Seq[(Term, Term)] = Seq( (Head(x), Fina) )
     assertUnsatDueTo[InvalidEquality]()
   }
   it should "return unsat on simple selector inequality" in new FiniteAndListSig {
     val x = Variable(1)
-    override val eqs = Seq( (x, Cons(Fina,Nil)) )
-    override val ineqs = Seq( (Head(x), Fina) )
+    override val eqs: Seq[(Term, Term)] = Seq( (x, Cons(Fina,Nil)) )
+    override val ineqs: Seq[(Term, Term)] = Seq( (Head(x), Fina) )
     assertUnsatDueTo[InvalidEquality]()
   }
   it should "return sat on list equality with selectors" in new FiniteAndListSig {
     val x = Variable(1)
     val y = Variable(2)
-    override val eqs = Seq( (x, Cons(y,Nil)), (Head(x), y), (Tail(x), Nil) )
+    override val eqs: Seq[(Term, Term)] = Seq( (x, Cons(y,Nil)), (Head(x), y), (Tail(x), Nil) )
     assertSat()
   }
 
   it should "return unsat on simple instantiation of Cons, no merge, no splitting" in new FiniteAndListSig {
     val x = Variable(1)
-    override val eqs = Seq( (Head(x), Fina), (Tail(x), Nil) )
-    override val ineqs = Seq( (x, Cons(Fina,Nil)) )
+    override val eqs: Seq[(Term, Term)] = Seq( (Head(x), Fina), (Tail(x), Nil) )
+    override val ineqs: Seq[(Term, Term)] = Seq( (x, Cons(Fina,Nil)) )
     override val tests = Seq( IsCons(x) )
     assertUnsatDueTo[InvalidEquality]()
   }
   it should "return unsat on simple instantiation of Cons, with merge, no splitting" in new FiniteAndListSig {
     val x = Variable(1)
     val y = Variable(2)
-    override val eqs = Seq( (Head(x), Fina), (Tail(y), Nil), (x,y) )
-    override val ineqs = Seq( (x, Cons(Fina,Nil)) )
+    override val eqs: Seq[(Term, Term)] = Seq( (Head(x), Fina), (Tail(y), Nil), (x,y) )
+    override val ineqs: Seq[(Term, Term)] = Seq( (x, Cons(Fina,Nil)) )
     override val tests = Seq( IsCons(x) )
     assertUnsatDueTo[InvalidEquality]()
   }
@@ -161,28 +161,28 @@ class AdtSolverListsTests extends AnyFlatSpec with BeforeAndAfter with AdtSolver
     val x = Variable(1)
     val y = Variable(2)
     val z = Variable(3)
-    override val eqs = Seq( (Head(x), z), (Tail(y), Nil), (x,y) )
-    override val ineqs = Seq( (x, Cons(z,Nil)) )
+    override val eqs: Seq[(Term, Term)] = Seq( (Head(x), z), (Tail(y), Nil), (x,y) )
+    override val ineqs: Seq[(Term, Term)] = Seq( (x, Cons(z,Nil)) )
     override val tests = Seq( IsCons(x) )
     assertUnsatDueTo[InvalidEquality]()
   }
   it should "return unsat on simple instantiation of Cons, with splitting" in new FiniteAndListSig {
 //    solver.debugOn
-    override val expectSplitting = Some(true)
+    override val expectSplitting: Option[Boolean] = Some(true)
     val x = Variable(1)
     val z = Variable(3)
-    override val eqs = Seq( (Head(x), z), (Tail(x), Nil) )
-    override val ineqs = Seq( (x, Cons(z,Nil)) )
+    override val eqs: Seq[(Term, Term)] = Seq( (Head(x), z), (Tail(x), Nil) )
+    override val ineqs: Seq[(Term, Term)] = Seq( (x, Cons(z,Nil)) )
     //assertUnsatDueTo[InvalidEquality]()
     assertUnsat()
   }
 
   it should "return unsat on degenerate cyclic list example" in new FiniteAndListSig {
 //    solver.debugOn
-    override val expectSplitting = Some(true)
+    override val expectSplitting: Option[Boolean] = Some(true)
     val x = Variable(1)
     val z = Variable(3)
-    override val eqs = Seq( (TailN(2,z), x), (z, x) )
+    override val eqs: Seq[(Term, Term)] = Seq( (TailN(2,z), x), (z, x) )
     override val tests = Seq( IsCons(z) )
     assertUnsat()
   }
@@ -190,10 +190,10 @@ class AdtSolverListsTests extends AnyFlatSpec with BeforeAndAfter with AdtSolver
   // TODO: Test case to check Instantiate 2 rule
 
   it should "return unsat on deep cycle of tails, with splitting" in new FiniteAndListSig {
-    override val expectSplitting = Some(true)
+    override val expectSplitting: Option[Boolean] = Some(true)
     val x = Variable(1)
     val z = Variable(3)
-    override val eqs = Seq((TailN(20,z), x), (z,x))
+    override val eqs: Seq[(Term, Term)] = Seq((TailN(20,z), x), (z,x))
     override val tests = Seq(IsCons(z))
     assertUnsat()
   }
@@ -203,8 +203,8 @@ class AdtSolverListsTests extends AnyFlatSpec with BeforeAndAfter with AdtSolver
     val y = Variable(2)
     val z = Variable(3)
     val w = Variable(4)
-    override val eqs = Seq((Cons(x,y), z), (Head(w), x), (Tail(w), y))
-    override val ineqs = Seq((w, z))
+    override val eqs: Seq[(Term, Term)] = Seq((Cons(x,y), z), (Head(w), x), (Tail(w), y))
+    override val ineqs: Seq[(Term, Term)] = Seq((w, z))
     //TODO: should not need the tests, but they work while the test crashes without
     //override val tests = Seq(IsCons(w)) 
     assertUnsat()
@@ -216,8 +216,8 @@ class AdtSolverListsTests extends AnyFlatSpec with BeforeAndAfter with AdtSolver
     val z = Variable(3)
     val v = Variable(4)
     val w = Variable(5)
-    override val eqs = Seq((Cons(x,y), z), (Head(w), x), (Tail(w), y), (v, w))
-    override val ineqs = Seq((y, Tail(v)))
+    override val eqs: Seq[(Term, Term)] = Seq((Cons(x,y), z), (Head(w), x), (Tail(w), y), (v, w))
+    override val ineqs: Seq[(Term, Term)] = Seq((y, Tail(v)))
     assertUnsat()
   }
 
@@ -225,8 +225,8 @@ class AdtSolverListsTests extends AnyFlatSpec with BeforeAndAfter with AdtSolver
     val x = Variable(1)
     val y = Variable(2)
     val w = Variable(3)
-    override val eqs = Seq((Cons(x,y), w), (Tail(w), Tail(y)))
-    override val ineqs = Seq((y, Nil))
+    override val eqs: Seq[(Term, Term)] = Seq((Cons(x,y), w), (Tail(w), Tail(y)))
+    override val ineqs: Seq[(Term, Term)] = Seq((y, Nil))
     assertUnsat()
   }
 

@@ -29,7 +29,7 @@ class AdtSolverMultiConstructorsTests extends AnyFlatSpec with AdtSolverSpecHelp
   }
 
   it should "return sat on trivial constraints" in new FiniteAndMultiCtors {
-    override val eqs = Seq((Variable(1), Variable(1)))
+    override val eqs: Seq[(Term, Term)] = Seq((Variable(1), Variable(1)))
     assertSat()
   }
 
@@ -37,7 +37,7 @@ class AdtSolverMultiConstructorsTests extends AnyFlatSpec with AdtSolverSpecHelp
     val x = Variable(1)
     val y = Variable(2)
     val z = Variable(3)
-    override val eqs = Seq((C1(x), z), (C1(y), z))
+    override val eqs: Seq[(Term, Term)] = Seq((C1(x), z), (C1(y), z))
     assertSat()
   }
 
@@ -45,8 +45,8 @@ class AdtSolverMultiConstructorsTests extends AnyFlatSpec with AdtSolverSpecHelp
     val x = Variable(1)
     val y = Variable(2)
     val z = Variable(3)
-    override val eqs = Seq((C1(x), z), (C1(y), z))
-    override val ineqs = Seq((x, y))
+    override val eqs: Seq[(Term, Term)] = Seq((C1(x), z), (C1(y), z))
+    override val ineqs: Seq[(Term, Term)] = Seq((x, y))
     assertUnsatDueTo[InvalidEquality]()
   }
 
@@ -54,7 +54,7 @@ class AdtSolverMultiConstructorsTests extends AnyFlatSpec with AdtSolverSpecHelp
     val x = Variable(1)
     val y = Variable(2)
     val z = Variable(3)
-    override val eqs = Seq((C1(x), y), (C2(x), z))
+    override val eqs: Seq[(Term, Term)] = Seq((C1(x), y), (C2(x), z))
     assertSat()
   }
 
@@ -62,7 +62,7 @@ class AdtSolverMultiConstructorsTests extends AnyFlatSpec with AdtSolverSpecHelp
     val x = Variable(1)
     val y = Variable(2)
     val z = Variable(3)
-    override val eqs = Seq((C1(x), z), (C2(y), z))
+    override val eqs: Seq[(Term, Term)] = Seq((C1(x), z), (C2(y), z))
     assertUnsatDueTo[EmptyLabelling]()
   }
 
@@ -72,31 +72,31 @@ class AdtSolverMultiConstructorsTests extends AnyFlatSpec with AdtSolverSpecHelp
   //due to selectors being partial functions, but being extended to a total function via
   //a distinguished term, which means that it is ok to apply to wrong constructors.
   it should "return sat when x is used with different selectors" in new FiniteAndMultiCtors {
-    override val expectSplitting = Some(true)
+    override val expectSplitting: Option[Boolean] = Some(true)
     val x = Variable(1)
     val y = Variable(2)
     val z = Variable(3)
-    override val eqs = Seq((S1(x), y), (S2(x), z))
+    override val eqs: Seq[(Term, Term)] = Seq((S1(x), y), (S2(x), z))
     assertSat()
   }
 
   //still sat, for similar reason as above
   it should "return sat when x is used with different selectors and tester forces one" in new FiniteAndMultiCtors {
-    override val expectSplitting = Some(true)
+    override val expectSplitting: Option[Boolean] = Some(true)
     val x = Variable(1)
     val y = Variable(2)
     val z = Variable(3)
-    override val eqs = Seq((S1(x), y), (S2(x), z))
+    override val eqs: Seq[(Term, Term)] = Seq((S1(x), y), (S2(x), z))
     override val tests = Seq( IsC1(x) )
     assertSat()
   }
 
   it should "return sat when x is used with different selectors and one is different from distinguished term" in new FiniteAndMultiCtors {
-    override val expectSplitting = Some(true)
+    override val expectSplitting: Option[Boolean] = Some(true)
     val x = Variable(1)
     val y = Variable(2)
     val z = Variable(3)
-    override val eqs = Seq((S1(x), y), (S2(x), z), (z, Fina))
+    override val eqs: Seq[(Term, Term)] = Seq((S1(x), y), (S2(x), z), (z, Fina))
     assertSat()
   }
 
@@ -107,7 +107,7 @@ class AdtSolverMultiConstructorsTests extends AnyFlatSpec with AdtSolverSpecHelp
     val x = Variable(1)
     val y = Variable(2)
     val z = Variable(3)
-    override val eqs = Seq((S1(x), y), (S2(x), z), (z, Fina))
+    override val eqs: Seq[(Term, Term)] = Seq((S1(x), y), (S2(x), z), (z, Fina))
     override val tests = Seq( IsC1(x) )
     assertUnsat()
   }
@@ -117,7 +117,7 @@ class AdtSolverMultiConstructorsTests extends AnyFlatSpec with AdtSolverSpecHelp
     val y = Variable(2)
     val z = Variable(3)
     val z2 = Variable(4)
-    override val eqs = Seq((S1(z), x), (S2(z2), y), (z, z2))
+    override val eqs: Seq[(Term, Term)] = Seq((S1(z), x), (S2(z2), y), (z, z2))
     assertSat()
   }
   it should "return unsat when an equivalent variable is used with incompatible selectors and forced different from distinguished term" in new FiniteAndMultiCtors {
@@ -125,7 +125,7 @@ class AdtSolverMultiConstructorsTests extends AnyFlatSpec with AdtSolverSpecHelp
     val y = Variable(2)
     val z = Variable(3)
     val z2 = Variable(4)
-    override val eqs = Seq((S1(z), x), (S2(z2), y), (z, z2), (y, Fina))
+    override val eqs: Seq[(Term, Term)] = Seq((S1(z), x), (S2(z2), y), (z, z2), (y, Fina))
     override val tests = Seq(IsC1(z))
     assertUnsat()
   }
