@@ -230,4 +230,19 @@ class AdtSolverListsTests extends AnyFlatSpec with BeforeAndAfter with AdtSolver
     assertUnsat()
   }
 
+  // Same as above, but y is first merged with an unrelated, otherwise
+  // unconstrained variable z. That merge makes y (not z) the representative
+  // that absorbs the other side, which is what exercises the selector-loss
+  // bug fixed alongside this test: y's own pending Tail(y) selector must
+  // survive being the absorbing side of a merge, not just the absorbed side.
+  it should "return unsat on a cycle with indirect equality between the lists, when y first absorbs an unrelated variable" in new FiniteAndListSig {
+    val x = Variable(1)
+    val y = Variable(2)
+    val w = Variable(3)
+    val z = Variable(4)
+    override val eqs: Seq[(Term, Term)] = Seq((y, z), (Cons(x,y), w), (Tail(w), Tail(y)))
+    override val ineqs: Seq[(Term, Term)] = Seq((y, Nil))
+    assertUnsat()
+  }
+
 }
